@@ -1,0 +1,50 @@
+syntax = "proto2";
+
+import "fcityDatabase.proto";
+
+enum table {
+  users = 1;
+  vehicle = 2;
+  ride = 3;
+  sensor = 4;
+  measure = 5;
+  data = 6; 
+}
+
+message ConnectionRequest {
+}
+
+message ConnectionResponse {
+	required int32 port = 1;
+}
+
+message SynchronizeRequest {
+}
+
+message SynchronizeResponse {
+	optional db.element element = 1;
+}
+
+message EndOfRideRequest {
+	optional db.element element = 1;
+}
+
+message EndOfRideResponse {
+	required bool taskDone = 1;
+}
+
+message EndConnectionRequest {
+}
+
+message CarToServ {
+	optional ConnectionRequest connectionRequest = 1;
+	optional SynchronizeRequest synchronizeRequest = 2;
+	optional EndOfRideRequest endOfRideRequest = 3;
+	optional EndConnectionRequest endConnectionRequest = 4;
+}
+
+message ServToCar {
+	optional ConnectionResponse connectionResponse = 1;
+	optional SynchronizeResponse synchronizeResponse = 2;
+	optional EndOfRideResponse endOfRideResponse = 3;
+}

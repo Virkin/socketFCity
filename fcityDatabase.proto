@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+package db;
+
+message data {
+  required string id = 1;
+  required string ride_id = 2;
+  required string measure_id = 3;
+  required string value = 4;
+  required string added_on = 5;
+}
+
+message measure {
+  required string id = 1;
+  required string sensor_id = 2;
+  required string name = 3;
+  required string unit = 4;
+  optional string created_at = 5;
+  optional string updated_at = 6;
+}
+
+message migrations {
+  required string id = 1;
+  required string migration = 2;
+  required string batch = 3;
+}
+
+message password_resets {
+  required string email = 1;
+  required string token = 2;
+  optional string created_at = 3; 
+}
+
+message ride {
+  required string id = 1;
+  required string user_id = 2;
+  required string vehicle_id = 3;
+  required string start_reservation = 4;
+  required string end_reservation = 5;
+  required string start_date = 6;
+  required string end_date = 7;
+  optional string created_at = 8; 
+  optional string updated_at = 9;
+}
+
+message sensor {
+  required string id = 1;
+  required string name = 2;
+  optional string created_at = 3;
+  optional string updated_at = 4;
+}
+
+message users {
+  required string id = 1;
+  required string name = 2;
+  required string email = 3;
+  optional string email_verified_at = 4;
+  required string password = 5;
+  optional string remember_token = 6;
+  optional string created_at = 7;
+  optional string updated_at = 8;
+}
+
+message vehicle {
+  required string id = 1;
+  required string brand = 2;
+  required string model = 3;
+  required string type = 4;
+  optional string created_at = 5;
+  optional string updated_at = 6;
+}
+
+message element {
+  repeated users users = 1;
+  repeated vehicle vehicle = 2;
+  repeated ride ride = 3;
+  repeated sensor sensor = 4;
+  repeated measure measure = 5;
+  repeated data data = 6; 
+}
