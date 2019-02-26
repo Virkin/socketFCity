@@ -1,7 +1,9 @@
 import synchro_pb2
 import fcityDatabase_pb2
 import mysql.connector
-
+import datetime
+import random
+import time
 
 class ProtobufProcessing() :
 	def __init__(self, mode, host, user, passwd, database) :
@@ -144,12 +146,19 @@ class ProtobufProcessing() :
 		self.mydb.commit()
 
 	def insertFakeData(self) :
-		curs = self.mydb.cursor(dictionary=True)
+		curs = self.mydb.cursor()
 
-		i=0
+		curs.execute("SELECT count(*) FROM users")
+		result = curs.fetchone()
+
+		nbUser = result[0] 
 		
-		for i in range(100000) : 
-			curs.execute("INSERT INTO data VALUES (NULL, 1, 1 , 112.34, '2019-02-20 00:00:00')")
+		for i in range(nbUser) :
+			for j in range(100) : 
+				speed = round(random.uniform(20,30),2)
+				now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+				curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(i+1,1,speed,now))
+				time.sleep(1)
 		
 		curs.close()
 		self.mydb.commit()
