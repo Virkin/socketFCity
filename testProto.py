@@ -153,12 +153,20 @@ class ProtobufProcessing() :
 
 		nbUser = result[0] 
 		
+		now = datetime.datetime.now()
+
 		for i in range(nbUser) :
+			voltage = 240
 			for j in range(100) : 
 				speed = round(random.uniform(20,30),2)
-				now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-				curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(i+1,1,speed,now))
-				time.sleep(1)
+				curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(i+2,1,speed,now.strftime('%Y-%m-%d %H:%M:%S')))
+				curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(i+2,1,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
+				now += datetime.timedelta(0,1)
+
+				if i==0 :
+					voltage -= 0.05
+				else :
+					voltage -= 0.02
 		
 		curs.close()
 		self.mydb.commit()
