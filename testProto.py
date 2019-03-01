@@ -162,7 +162,7 @@ class ProtobufProcessing() :
 			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
 			now += datetime.timedelta(0,1)
 
-			voltage -= 0.05
+			voltage -= 0.04
 
 		curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
 		
@@ -172,7 +172,7 @@ class ProtobufProcessing() :
 
 	def setCurrentRide(self) :
 		curs = self.mydb.cursor()
-		curs.execute("SELECT id from ride where NOW() BETWEEN start_reservation and end_reservation")
+		curs.execute("SELECT id from ride.vehicle_id = 1 AND NOW() BETWEEN start_reservation and end_reservation")
 		res = curs.fetchone()
 		
 		try :
