@@ -25,8 +25,19 @@ message SynchronizeResponse {
 	optional db.element element = 1;
 }
 
+message StartOfRideRequest {
+	required int32 id = 1;
+	required string startDate = 2;
+}
+
+message StartOfRideResponse {
+	required bool taskDone = 1;
+}
+
 message EndOfRideRequest {
-	optional db.element element = 1;
+	required int32 id = 1;
+	required string endDate = 2;
+	optional db.element element = 3;
 }
 
 message EndOfRideResponse {
@@ -39,12 +50,14 @@ message EndConnectionRequest {
 message CarToServ {
 	optional ConnectionRequest connectionRequest = 1;
 	optional SynchronizeRequest synchronizeRequest = 2;
-	optional EndOfRideRequest endOfRideRequest = 3;
-	optional EndConnectionRequest endConnectionRequest = 4;
+	optional StartOfRideRequest startOfRideRequest = 3;
+	optional EndOfRideRequest endOfRideRequest = 4;
+	optional EndConnectionRequest endConnectionRequest = 5;
 }
 
 message ServToCar {
 	optional ConnectionResponse connectionResponse = 1;
 	optional SynchronizeResponse synchronizeResponse = 2;
-	optional EndOfRideResponse endOfRideResponse = 3;
+	optional StartOfRideResponse startOfRideResponse = 3;
+	optional EndOfRideResponse endOfRideResponse = 4;
 }

@@ -57,6 +57,10 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 					s=struct.pack(">L",len(resp))+resp
 					self.request.sendall(s)
 
+				elif msg.HasField("startOfRideRequest") :
+					resp = self.protobufProccess.setStartRide(msg)
+					self.request.sendall(resp)
+
 				elif msg.HasField("endOfRideRequest") :
 					print("end of ride !!!!")
 					self.protobufProccess.protobufDataToDb(msg)

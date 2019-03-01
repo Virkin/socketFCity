@@ -62,11 +62,28 @@ try:
     sock.send(s)
 
     # Receive data from the server and shut down
+    
     bf = sock.recv(4)
     sz=struct.unpack(">L",bf)[0]
     recv = recv_message(sock, sz)
 
+    # Receive all element of the server database
     protobufProcess.protobufElementToDb(recv)
+
+    if not protobufProcess.setCurrentRide() :
+        print("No ride has been booked")
+        sys.exit(1)
+
+    # Start ride request
+    msg = protobufProcess.startRide()
+    s=struct.pack(">L",len(msg))+msg
+    sock.send(s)
+
+    recv = sock.recv(1024)
+
+    if protobufProcess.isTaskDone(recv) != True :
+        print("The server socket doesnt return response for the start ride")
+        sys.exit(1)
 
     msg = protobufProcess.generateData()
 
