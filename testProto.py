@@ -4,6 +4,7 @@ import mysql.connector
 import datetime
 import random
 import time
+import math 
 
 class ProtobufProcessing() :
 	def __init__(self, mode, host, user, passwd, database) :
@@ -157,7 +158,7 @@ class ProtobufProcessing() :
 
 		voltage = 240
 		for j in range(3600) : 
-			speed = round(random.uniform(20,30),2)
+			speed = round(random.uniform(20,30)*(math.sin(j*0.01)+1),2)
 			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,1,speed,now.strftime('%Y-%m-%d %H:%M:%S')))
 			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
 			now += datetime.timedelta(0,1)
@@ -172,7 +173,8 @@ class ProtobufProcessing() :
 
 	def setCurrentRide(self) :
 		curs = self.mydb.cursor()
-		curs.execute("SELECT id from ride where ride.vehicle_id = 1 AND NOW() BETWEEN start_reservation and end_reservation")
+		#curs.execute("SELECT id from ride where ride.vehicle_id = 1 AND NOW() BETWEEN start_reservation and end_reservation")
+		curs.execute("SELECT id from ride where NOW() BETWEEN start_reservation and end_reservation")
 		res = curs.fetchone()
 		
 		try :
