@@ -48,7 +48,7 @@ class ClientSocket :
         print("Sent:     {}".format(data.SerializeToString()))
         print("Received: {}".format(msg.connectionResponse.port))
 
-        PORT = msg.connectionResponse.port
+        self.PORT = msg.connectionResponse.port
         
         
         # Create a socket (SOCK_STREAM means a TCP socket)
