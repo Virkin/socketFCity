@@ -15,6 +15,7 @@ from re import match
 from datetime import datetime
 import time
 from clientClass import ClientSocket
+import mysql.connector
 
 class NavigationApp(App):
     def build(self):
