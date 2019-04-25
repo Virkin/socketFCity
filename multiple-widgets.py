@@ -200,7 +200,7 @@ class NavigationApp(App):
         
         if self.rideId != -1 :
 
-            insertFakeData()
+            self.insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
