@@ -177,7 +177,7 @@ class NavigationApp(App):
         
         if self.rideId == -1 :
                 self.stop = Button(text="Pas de trajet réservé", font_size="30sp", markup=True, on_release=self.stop_vehicule)
-        else
+        else:
             self.stop = Button(text="Fin du trajet", font_size="30sp", markup=True, on_release=self.stop_vehicule)
         
         self.toolbar.add_widget(self.user)
