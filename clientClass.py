@@ -18,10 +18,11 @@ def recv_message(connection,sz):
         return b''.join(data)
 
 class ClientSocket :
-    self.HOST = "172.17.3.241"
-    self.PORT = 8080
 
     def __init__(self):
+        self.HOST = "172.17.3.241"
+        self.PORT = 8080
+
         protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
         protobufProcess.clearDb()
