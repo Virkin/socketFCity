@@ -57,7 +57,7 @@ class ClientSocket :
 
     def startRide(self) :
         try:
-	    data = synchro_pb2.CarToServ()
+            data = synchro_pb2.CarToServ()
             data.synchronizeRequest.Clear()
             # Connect to server and send data
             data = data.SerializeToString()
