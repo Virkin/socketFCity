@@ -17,7 +17,7 @@ def recv_message(connection,sz):
             transferred_bytes += len(data[-1])
         return b''.join(data)
 
-protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
+protobufProcess = testProto.ProtobufProcessing("Car", "", "root", "root", "fcity_client")
 
 protobufProcess.clearDb()
 
