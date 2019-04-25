@@ -79,10 +79,6 @@ class NavigationApp(App):
 
         cltSock = ClientSocket()
         cltSock.startRide()
-        self.rideId = cltSock.getCurrentRide()
-        if self.rideId == -1 :
-            self.stop = Button(text="Pas de trajet réservé", font_size="30sp", markup=True, on_release=self.stop_vehicule)
-
 
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
@@ -162,12 +158,28 @@ class NavigationApp(App):
         badgeId = x[11:-1]
 
         curs = self.mydb.cursor()
+
+        try :
+            curs.execute("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId='{}'' NOW() BETWEEN start_reservation and end_reservation".format(badgeId))
+            res = curs.fetchone()
+
+            self.rideId = res[0]
+
+        except Exception as e:
+            self.rideId = -1
+
+        curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
         res = curs.fetchone()
         nickname = res[0]
 
         self.user = Label(text="[b]User :[/b] {}".format(nickname), font_size="30sp", markup=True)
-        self.stop = Button(text="Fin du trajet", font_size="30sp", markup=True, on_release=self.stop_vehicule)
+        
+        if self.rideId == -1 :
+                self.stop = Button(text="Pas de trajet réservé", font_size="30sp", markup=True, on_release=self.stop_vehicule)
+        else
+            self.stop = Button(text="Fin du trajet", font_size="30sp", markup=True, on_release=self.stop_vehicule)
+        
         self.toolbar.add_widget(self.user)
         self.toolbar.add_widget(self.stop)
 
@@ -200,7 +212,7 @@ class NavigationApp(App):
         
         if self.rideId != -1 :
 
-            self.insertFakeData()
+            #self.insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
