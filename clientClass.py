@@ -23,9 +23,9 @@ class ClientSocket :
         self.HOST = "172.17.3.241"
         self.PORT = 8080
 
-        protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
+        self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
-        protobufProcess.clearDb()
+        self.protobufProcess.clearDb()
 
         data = synchro_pb2.CarToServ()
         data.connectionRequest.Clear()
@@ -77,17 +77,17 @@ class ClientSocket :
             recv = recv_message(self.sock, sz)
 
             # Receive all element of the server database
-            protobufProcess.protobufElementToDb(recv)
+            self.protobufProcess.protobufElementToDb(recv)
 
         except Exception as e:
             raise(e)
 
     def getCurrentRide(self) :
-        if protobufProcess.setCurrentRide() == -1 :
+        if self.protobufProcess.setCurrentRide() == -1 :
             print("No ride has been booked")
             return -1
         else :
-            return protobufProcess.setCurrentRide()
+            return self.protobufProcess.setCurrentRide()
 
     def endRide(self):
         try:    
@@ -96,18 +96,18 @@ class ClientSocket :
 
             recv = self.sock.recv(1024)
 
-            if protobufProcess.isTaskDone(recv) != True :
+            if self.protobufProcess.isTaskDone(recv) != True :
                 print("The server socket doesnt return response for the start ride")
                 sys.exit(1)
 
-            msg = protobufProcess.generateData()
+            msg = self.protobufProcess.generateData()
 
             s=struct.pack(">L",len(msg))+msg
             self.sock.send(s)
 
             recv = self.sock.recv(1024)
 
-            if protobufProcess.isTaskDone(recv) == True :
+            if self.protobufProcess.isTaskDone(recv) == True :
                 self.sock.close()
 
         except Exception as e:
