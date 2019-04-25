@@ -76,7 +76,7 @@ class NavigationApp(App):
             passwd="root",
             database="fcity"
         )
-        
+
         cltSock = ClientSocket()
         cltSock.startRide()
         self.rideId = cltSock.getCurrentRide()
@@ -212,7 +212,7 @@ class NavigationApp(App):
 
         curs = self.mydb.cursor()
         
-        now = datetime.datetime.now()
+        now = datetime.now()
 
         curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
 
