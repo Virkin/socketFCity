@@ -1,74 +1,10 @@
-syntax = "proto2";
+syntax = 'proto3';
 
 package db;
 
-message data {
-  required string id = 1;
-  required string ride_id = 2;
-  required string measure_id = 3;
-  required string value = 4;
-  required string added_on = 5;
-}
-
-message measure {
-  required string id = 1;
-  required string sensor_id = 2;
-  required string name = 3;
-  required string unit = 4;
-  optional string created_at = 5;
-  optional string updated_at = 6;
-}
-
-message migrations {
-  required string id = 1;
-  required string migration = 2;
-  required string batch = 3;
-}
-
-message password_resets {
-  required string email = 1;
-  required string token = 2;
-  optional string created_at = 3; 
-}
-
-message ride {
-  required string id = 1;
-  required string user_id = 2;
-  required string vehicle_id = 3;
-  required string start_reservation = 4;
-  required string end_reservation = 5;
-  required string start_date = 6;
-  required string end_date = 7;
-  optional string created_at = 8; 
-  optional string updated_at = 9;
-}
-
-message sensor {
-  required string id = 1;
-  required string name = 2;
-  optional string created_at = 3;
-  optional string updated_at = 4;
-}
-
-message users {
-  required string id = 1;
-  required string name = 2;
-  required string email = 3;
-  optional string email_verified_at = 4;
-  required string password = 5;
-  optional string remember_token = 6;
-  optional string created_at = 7;
-  optional string updated_at = 8;
-}
-
-message vehicle {
-  required string id = 1;
-  required string brand = 2;
-  required string model = 3;
-  required string type = 4;
-  optional string created_at = 5;
-  optional string updated_at = 6;
-}
+// ------------------------------------ 
+// Messages
+// ------------------------------------ 
 
 message element {
   repeated users users = 1;
@@ -78,3 +14,81 @@ message element {
   repeated measure measure = 5;
   repeated data data = 6; 
 }
+
+message data {
+  string id = 1;
+  string ride_id = 2;
+  string measure_id = 3;
+  string value = 4;
+  string added_on = 5;
+}
+
+message measure {
+  string id = 1;
+  string sensor_id = 2;
+  string name = 3;
+  string unit = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message migration {
+  string id = 1;
+  string migration = 2;
+  string batch = 3;
+}
+
+message password_reset {
+  string email = 1;
+  string token = 2;
+  string created_at = 3;
+}
+
+message ride {
+  string id = 1;
+  string user_id = 2;
+  string vehicle_id = 3;
+  string start_reservation = 4;
+  string end_reservation = 5;
+  string start_date = 6;
+  string end_date = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message sensor {
+  string id = 1;
+  string name = 2;
+  string created_at = 3;
+  string updated_at = 4;
+}
+
+message users {
+  string id = 1;
+  string nickname = 2;
+  string email = 3;
+  string email_verified_at = 4;
+  string password = 5;
+  string badgeId = 6;
+  string remember_token = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message vehicle {
+  string id = 1;
+  string brand = 2;
+  string model = 3;
+  string type = 4;
+  string numberPlate = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+
+// ------------------------------------ 
+// Enums
+// ------------------------------------ 
+
+
+

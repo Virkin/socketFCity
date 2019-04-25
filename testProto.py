@@ -118,6 +118,7 @@ class ProtobufProcessing() :
 		print("Msg : {}".format(msg))
 
 		for table in synchro_pb2.table.keys() :
+			print(msg.synchronizeResponse.element)
 			self.insertElement(msg.synchronizeResponse.element, table)
 
 		curs.close()
@@ -159,11 +160,15 @@ class ProtobufProcessing() :
 		voltage = 240
 		for j in range(3600) : 
 			speed = round(random.uniform(20,30)*(math.sin(j*0.01)+1),2)
+			intensity = round(speed/10,2)
+
 			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,1,speed,now.strftime('%Y-%m-%d %H:%M:%S')))
 			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
+			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,3,intensity,now.strftime('%Y-%m-%d %H:%M:%S')))
+
 			now += datetime.timedelta(0,1)
 
-			voltage -= 0.04
+			voltage = round(voltage-0.04,2)
 
 		curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
 		
