@@ -18,7 +18,8 @@ def recv_message(connection,sz):
         return b''.join(data)
 
 class ClientSocket :
-    HOST, PORT = "172.17.3.241", 8080
+    self.HOST = "172.17.3.241"
+    self.PORT = 8080
 
     def __init__(self):
         protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
@@ -33,7 +34,7 @@ class ClientSocket :
 
         try:
             # Connect to server and send data
-            self.fSock.connect((HOST, PORT))
+            self.fSock.connect((self.HOST, self.PORT))
             self.fSock.sendall(data.SerializeToString())
 
             # Receive data from the server and shut down
@@ -63,7 +64,7 @@ class ClientSocket :
             # Connect to server and send data
             data = data.SerializeToString()
 
-            self.sock.connect((HOST, PORT))
+            self.sock.connect((self.HOST, self.PORT))
             s=struct.pack(">L",len(data))+data
             self.sock.send(s)
 
