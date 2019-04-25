@@ -18,25 +18,26 @@ def recv_message(connection,sz):
         return b''.join(data)
 
 class ClientSocket :
+    HOST, PORT = "172.17.3.241", 8080
+
     def __init__(self):
         protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
         protobufProcess.clearDb()
 
-        HOST, PORT = "172.17.3.241", 8080
         data = synchro_pb2.CarToServ()
         data.connectionRequest.Clear()
         # Create a socket (SOCK_STREAM means a TCP socket)
-        fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
             # Connect to server and send data
-            fSock.connect((HOST, PORT))
-            fSock.sendall(data.SerializeToString())
+            self.fSock.connect((HOST, PORT))
+            self.fSock.sendall(data.SerializeToString())
 
             # Receive data from the server and shut down
-            recv = fSock.recv(1024)
+            recv = self.fSock.recv(1024)
          
             msg = synchro_pb2.ServToCar.FromString(recv)
         except Exception as e:
@@ -49,11 +50,11 @@ class ClientSocket :
         
         
         # Create a socket (SOCK_STREAM means a TCP socket)
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE,1)
-        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
-        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
-        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE,1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
 
     def startRide(self) :
         try:
@@ -62,15 +63,15 @@ class ClientSocket :
             # Connect to server and send data
             data = data.SerializeToString()
 
-            sock.connect((HOST, PORT))
+            self.sock.connect((HOST, PORT))
             s=struct.pack(">L",len(data))+data
-            sock.send(s)
+            self.sock.send(s)
 
             # Receive data from the server and shut down
             
-            bf = sock.recv(4)
+            bf = self.sock.recv(4)
             sz=struct.unpack(">L",bf)[0]
-            recv = recv_message(sock, sz)
+            recv = recv_message(self.sock, sz)
 
             # Receive all element of the server database
             protobufProcess.protobufElementToDb(recv)
@@ -88,9 +89,9 @@ class ClientSocket :
     def endRide(self):
         try:    
             s=struct.pack(">L",len(msg))+msg
-            sock.send(s)
+            self.sock.send(s)
 
-            recv = sock.recv(1024)
+            recv = self.sock.recv(1024)
 
             if protobufProcess.isTaskDone(recv) != True :
                 print("The server socket doesnt return response for the start ride")
@@ -99,12 +100,12 @@ class ClientSocket :
             msg = protobufProcess.generateData()
 
             s=struct.pack(">L",len(msg))+msg
-            sock.send(s)
+            self.sock.send(s)
 
-            recv = sock.recv(1024)
+            recv = self.sock.recv(1024)
 
             if protobufProcess.isTaskDone(recv) == True :
-                sock.close()
+                self.sock.close()
 
         except Exception as e:
             raise(e)
@@ -116,9 +117,9 @@ class ClientSocket :
         data.endConnectionRequest.Clear()
 
         try :
-            fSock.send(data.SerializeToString())
+            self.fSock.send(data.SerializeToString())
         except Exception as e:
             raise(e)
         finally :
-            fSock.close()
+            self.fSock.close()
 
