@@ -204,7 +204,7 @@ class NavigationApp(App):
             self.progress.value += 1
 
     def update_pos(self, dt):
-        if self.rideId != -1 :
+        if self.rideId > 0 :
 
             self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} |  [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
             self.home.lon = self.map.lon
@@ -212,7 +212,7 @@ class NavigationApp(App):
 
     def update(self, dt):
         
-        if self.rideId != -1 :
+        if self.rideId > 0 :
 
             #self.insertFakeData()
 
