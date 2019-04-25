@@ -158,7 +158,7 @@ class NavigationApp(App):
         )
 
         curs = self.mydb.cursor()
-        curs.execue("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
+        curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
         res = curs.fetchone()
         nickname = res[0]
 
