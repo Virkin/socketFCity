@@ -200,13 +200,6 @@ class NavigationApp(App):
         
         if self.rideId != -1 :
 
-            self.mydb = mysql.connector.connect(
-                host=host,
-                user=user,
-                passwd=passwd,
-                database=database
-            )
-
             insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
