@@ -77,6 +77,8 @@ class NavigationApp(App):
             database="fcity"
         )
 
+        self.rideId = 0
+
         cltSock = ClientSocket()
         cltSock.startRide()
 
