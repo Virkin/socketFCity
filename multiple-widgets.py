@@ -70,6 +70,13 @@ class NavigationApp(App):
         return self.layout
 
     def on_start(self):
+        self.mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="root",
+            database="fcity"
+        )
+        
         cltSock = ClientSocket()
         cltSock.startRide()
         self.rideId = cltSock.getCurrentRide()
@@ -153,13 +160,6 @@ class NavigationApp(App):
         self.toolbar.remove_widget(self.user)
 
         badgeId = x[11:-1]
-
-        self.mydb = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            passwd="root",
-            database="fcity"
-        )
 
         curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
