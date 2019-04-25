@@ -45,29 +45,32 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 			try :
 		
 				bf = self.request.recv(4)
-				sz=struct.unpack(">L",bf)[0]
-				print("\n{} bytes\n".format(sz))
-				self.data = self.recv_message(self.request,sz)
+				
+				if bf != b'' :
+					sz=struct.unpack(">L",bf)[0]
+				
+					print("\n{} bytes\n".format(sz))
+					self.data = self.recv_message(self.request,sz)
 
-				msg = synchro_pb2.CarToServ.FromString(self.data);
+					msg = synchro_pb2.CarToServ.FromString(self.data);
 
-				if msg.HasField("synchronizeRequest") :
-					
-					resp = self.protobufProccess.generateProto()
-					s=struct.pack(">L",len(resp))+resp
-					self.request.sendall(s)
+					if msg.HasField("synchronizeRequest") :
+						
+						resp = self.protobufProccess.generateProto()
+						s=struct.pack(">L",len(resp))+resp
+						self.request.sendall(s)
 
-				elif msg.HasField("startOfRideRequest") :
-					resp = self.protobufProccess.setStartRide(msg)
-					self.request.sendall(resp)
+					elif msg.HasField("startOfRideRequest") :
+						resp = self.protobufProccess.setStartRide(msg)
+						self.request.sendall(resp)
 
-				elif msg.HasField("endOfRideRequest") :
-					print("end of ride !!!!")
-					self.protobufProccess.protobufDataToDb(msg)
+					elif msg.HasField("endOfRideRequest") :
+						print("end of ride !!!!")
+						self.protobufProccess.protobufDataToDb(msg)
 
-					resp = self.protobufProccess.generateDataResp()
-					self.request.sendall(resp)
-					shutdown = True
+						resp = self.protobufProccess.generateDataResp()
+						self.request.sendall(resp)
+						shutdown = True
 
 			except Exception as e :
 				raise(e)

@@ -63,15 +63,19 @@ class NavigationApp(App):
         self.layout.add_widget(self.maplayout)
 
         # Clock update
-        Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
-        Clock.schedule_interval(self.update, 1.0)
+        if self.rideId != -1 :
+            Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
+            Clock.schedule_interval(self.update, 1.0)
 
         return self.layout
 
     def on_start(self):
         cltSock = ClientSocket()
         cltSock.startRide()
-        rideId = cltSock.getCurrentRide()
+        self.rideId = cltSock.getCurrentRide()
+        if self.rideId == -1 :
+            self.stop = Button(text="Pas de trajet réservé", font_size="30sp", markup=True, on_release=self.stop_vehicule)
+
 
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
@@ -192,6 +196,15 @@ class NavigationApp(App):
 
     def update(self, dt):
         
+        self.mydb = mysql.connector.connect(
+            host=host,
+            user=user,
+            passwd=passwd,
+            database=database
+        )
+
+        insertFakeData()
+
         self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
         self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
         self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
@@ -199,12 +212,6 @@ class NavigationApp(App):
         self.intensite.text = "[b]Intensite :[/b] {} A".format(round(uniform(0, 250), 1))
 
     def insertFakeData(self) :
-        self.mydb = mysql.connector.connect(
-            host=host,
-            user=user,
-            passwd=passwd,
-            database=database
-        )
 
         curs = self.mydb.cursor()
         
