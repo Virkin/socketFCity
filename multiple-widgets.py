@@ -63,9 +63,9 @@ class NavigationApp(App):
         self.layout.add_widget(self.maplayout)
 
         # Clock update
-        if self.rideId != -1 :
-            Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
-            Clock.schedule_interval(self.update, 1.0)
+        
+        Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
+        Clock.schedule_interval(self.update, 1.0)
 
         return self.layout
 
@@ -190,26 +190,30 @@ class NavigationApp(App):
             self.progress.value += 1
 
     def update_pos(self, dt):
-        self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} |  [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
-        self.home.lon = self.map.lon
-        self.home.lat = self.map.lat
+        if self.rideId != -1 :
+
+            self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} |  [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
+            self.home.lon = self.map.lon
+            self.home.lat = self.map.lat
 
     def update(self, dt):
         
-        self.mydb = mysql.connector.connect(
-            host=host,
-            user=user,
-            passwd=passwd,
-            database=database
-        )
+        if self.rideId != -1 :
 
-        insertFakeData()
+            self.mydb = mysql.connector.connect(
+                host=host,
+                user=user,
+                passwd=passwd,
+                database=database
+            )
 
-        self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
-        self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
-        self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
-        self.tension.text = "[b]Tension :[/b] {} V".format(round(uniform(0, 250), 1))
-        self.intensite.text = "[b]Intensite :[/b] {} A".format(round(uniform(0, 250), 1))
+            insertFakeData()
+
+            self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
+            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
+            self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
+            self.tension.text = "[b]Tension :[/b] {} V".format(round(uniform(0, 250), 1))
+            self.intensite.text = "[b]Intensite :[/b] {} A".format(round(uniform(0, 250), 1))
 
     def insertFakeData(self) :
 
