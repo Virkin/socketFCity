@@ -192,6 +192,8 @@ class ProtobufProcessing() :
 	def generateDataMsg(self) :
 		curs = self.mydb.cursor(dictionary=True)
 
+		print("SELECT end_date from ride where id={}".format(self.currentRideId))
+
 		curs.execute("SELECT end_date from ride where id={}".format(self.currentRideId))
 
 		result = curs.fetchone()

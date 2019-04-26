@@ -72,7 +72,6 @@ class ClientSocket :
             self.sock.send(s)
 
             # Receive data from the server and shut down
-            print("J'attend les données du serveur qui fou rien")
 
             bf = self.sock.recv(4)
             sz=struct.unpack(">L",bf)[0]
