@@ -7,7 +7,7 @@ import testProto
 
 import threading
 import struct
-
+import time
 """socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket.bind(('', 8080))
 
@@ -70,6 +70,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 						resp = self.protobufProccess.generateDataResp()
 						self.request.sendall(resp)
 						shutdown = True
+				else :
+					time.sleep(1)
 
 			except Exception as e :
 				raise(e)

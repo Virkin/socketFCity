@@ -221,7 +221,7 @@ class NavigationApp(App):
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(self.speedVal)
             self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
-            self.puissance.text= "[b]Puissance :[/b] {} W".format(self.voltageVal*self.intensityVal)
+            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.voltageVal*self.intensityVal)))
 
     def insertFakeData(self) :
 
