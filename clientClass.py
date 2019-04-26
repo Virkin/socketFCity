@@ -126,9 +126,6 @@ class ClientSocket :
         except Exception as e:
             raise(e)
 
-        print("Sent:     {}".format(data))
-        print("Received: {}".format(recv))
-
         data = synchro_pb2.CarToServ()
         data.endConnectionRequest.Clear()
 
