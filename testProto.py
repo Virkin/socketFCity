@@ -190,18 +190,8 @@ class ProtobufProcessing() :
 		self.mydb.commit()
 
 
-	def setCurrentRide(self) :
-		curs = self.mydb.cursor()
-		#curs.execute("SELECT id from ride where ride.vehicle_id = 1 AND NOW() BETWEEN start_reservation and end_reservation")
-		curs.execute("SELECT id from ride where NOW() BETWEEN start_reservation and end_reservation")
-		res = curs.fetchone()
-		
-		try :
-			self.currentRideId = res[0]
-			return True
-		except :
-			return False
-
+	def setCurrentRide(self, rideId) :
+		self.currentRideId = rideId;
 
 	def generateDataMsg(self) :
 		self.resetDbConnection()

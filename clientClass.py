@@ -60,8 +60,7 @@ class ClientSocket :
 
         self.progress = 0
 
-    def startRide(self) :
-        try:
+         try:
             data = synchro_pb2.CarToServ()
             data.synchronizeRequest.Clear()
             # Connect to server and send data
@@ -79,7 +78,12 @@ class ClientSocket :
 
             # Receive all element of the server database
             self.protobufProcess.protobufElementToDb(recv)
+        except Exception as e:
+            raise(e)
 
+    def startRide(self) :
+
+        try:    
             msg = self.protobufProcess.startRide()
             s=struct.pack(">L",len(msg))+msg
             self.sock.send(s)
@@ -93,13 +97,9 @@ class ClientSocket :
         except Exception as e:
             raise(e)
 
-    def getCurrentRide(self) :
-        if self.protobufProcess.setCurrentRide() == -1 :
-            print("No ride has been booked")
-            return -1
-        else :
-            return self.protobufProcess.setCurrentRide()
-
+    def setCurrentRide(self,rideId) :
+        self.protobufProcess.setCurrentRide(rideId)
+    
     def getProgress(self):
         return self.progress
 

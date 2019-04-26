@@ -172,10 +172,20 @@ class NavigationApp(App):
         except Exception as e:
             self.rideId = -1
 
+        self.cltSock.setCurrentRide(self.rideId)
+
         curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
         res = curs.fetchone()
         nickname = res[0]
+
+        curs = self.mydb.cursor()
+        
+        now = datetime.now()
+
+        curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
+        curs.close()
+        self.mydb.commit()
 
         self.user = Label(text="[b]User :[/b] {}".format(nickname), font_size="30sp", markup=True)
         
@@ -231,12 +241,6 @@ class NavigationApp(App):
             self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.voltageVal*self.intensityVal)))
 
     def insertFakeData(self) :
-
-        curs = self.mydb.cursor()
-        
-        now = datetime.now()
-
-        curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
 
         self.t += 1
 
