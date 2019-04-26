@@ -85,6 +85,7 @@ class MainScreen(Screen):
         #self.layoutmain.add_widget(self.gotograph)
         #self.add_widget(self.layoutmain)
         self.layoutmain = RelativeLayout()
+        self.on_start()
         self.layoutmain.add_widget(self.build())
         self.add_widget(self.layoutmain)
 
@@ -115,6 +116,7 @@ class MainScreen(Screen):
         self.acceleration = Label(font_size="30sp", markup=True)
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
         self.user = Button(text="Connexion (Badge ISEN)", font_size="30sp", markup=True, on_release=self.read_card)
+        self.gotograph = Button(text="Graph", on_release=self.switchtograph)
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
 
         # Widget
@@ -124,6 +126,7 @@ class MainScreen(Screen):
         self.toolbar.add_widget(self.vitesse)
         self.toolbar.add_widget(self.acceleration)
         self.toolbar.add_widget(self.user)
+        self.toolbar.add_widget(self.gotograph)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
 
