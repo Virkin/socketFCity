@@ -16,6 +16,8 @@ from datetime import datetime
 import time
 from clientClass import ClientSocket
 import mysql.connector
+import math 
+import random
 
 class NavigationApp(App):
     def build(self):
@@ -36,8 +38,7 @@ class NavigationApp(App):
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
         self.logo = Image(source="ISEN-Brest_horizontal.jpg")
-        self.tension = Label(font_size="30sp", markup=True)
-        self.intensite = Label(font_size="30sp", markup=True)
+        self.puissance = Label(font_size="30sp", markup=True)
         self.vitesse = Label(font_size="30sp", markup=True)
         self.acceleration = Label(font_size="30sp", markup=True)
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
@@ -78,6 +79,8 @@ class NavigationApp(App):
         )
 
         self.rideId = 0
+        self.voltageVal = 240
+        self.t = 0
 
         cltSock = ClientSocket()
         cltSock.startRide()
@@ -214,13 +217,12 @@ class NavigationApp(App):
         
         if self.rideId > 0 :
 
-            #self.insertFakeData()
+            self.insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
-            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(randint(0, 50))
+            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(self.speedVal)
             self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
-            self.tension.text = "[b]Tension :[/b] {} V".format(round(uniform(0, 250), 1))
-            self.intensite.text = "[b]Intensite :[/b] {} A".format(round(uniform(0, 250), 1))
+            self.puissance.text= "[b]Puissance :[/b] {} W".format(self.voltageVal*self.intensityVal)
 
     def insertFakeData(self) :
 
@@ -230,20 +232,16 @@ class NavigationApp(App):
 
         curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
 
-        voltage = 240
-        
-        speed = round(random.uniform(20,30)*(math.sin(j*0.01)+1),2)
-        intensity = round(speed/10,2)
+        self.t += 1
 
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,1,speed,now.strftime('%Y-%m-%d %H:%M:%S')))
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,3,intensity,now.strftime('%Y-%m-%d %H:%M:%S')))
+        self.speedVal = round(random.uniform(20,30)*(math.sin(self.t*0.01)+1),2)
+        self.intensityVal = round(self.speed/10,2)
 
-        now += datetime.timedelta(0,1)
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,1,self.speedVal,now.strftime('%Y-%m-%d %H:%M:%S')))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,3,self.intensityVal,now.strftime('%Y-%m-%d %H:%M:%S')))
 
-        voltage = round(voltage-0.04,2)
-
-        curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
+        self.voltageVal = round(self.voltagVal-0.04,2)
         
         curs.close()
         self.mydb.commit()
