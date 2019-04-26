@@ -81,8 +81,8 @@ class NavigationApp(App):
         self.voltageVal = 240
         self.t = 0
 
-        cltSock = ClientSocket()
-        cltSock.startRide()
+        self.cltSock = ClientSocket()
+        self.cltSock.startRide()
 
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
