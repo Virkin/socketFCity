@@ -199,7 +199,7 @@ class NavigationApp(App):
         self.popuplayout.add_widget(self.popup)
 
         curs = self.mydb.cursor()
-        now = datetime.datetime.now()
+        now = datetime.now()
         curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
         curs.close()
         self.mydb.commit()
