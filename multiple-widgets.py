@@ -240,7 +240,7 @@ class NavigationApp(App):
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,3,self.intensityVal,now.strftime('%Y-%m-%d %H:%M:%S')))
 
-        self.voltageVal = round(self.voltagVal-0.04,2)
+        self.voltageVal = round(self.voltageVal-0.04,2)
         
         curs.close()
         self.mydb.commit()
