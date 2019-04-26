@@ -248,7 +248,8 @@ class NavigationApp(App):
         self.intensityVal = round(self.speedVal/10,2)
 
         curs = self.mydb.cursor()
-        
+        now = datetime.now()
+
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,1,self.speedVal,now.strftime('%Y-%m-%d %H:%M:%S')))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,3,self.intensityVal,now.strftime('%Y-%m-%d %H:%M:%S')))
