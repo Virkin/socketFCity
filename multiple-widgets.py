@@ -203,7 +203,7 @@ class NavigationApp(App):
         curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
         curs.close()
         self.mydb.commit()
-        cltSock.endRide()
+        self.cltSock.endRide()
 
     def next(self, dt):
         if self.cltSock.getProgress() == 4:
