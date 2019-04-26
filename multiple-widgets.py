@@ -48,8 +48,8 @@ class NavigationApp(App):
         # Widget
         self.toolbar.add_widget(self.titre)
         self.toolbar.add_widget(self.logo)
-        self.toolbar.add_widget(self.tension)
         self.toolbar.add_widget(self.puissance)
+        self.toolbar.add_widget(self.vitesse)
         self.toolbar.add_widget(self.acceleration)
         self.toolbar.add_widget(self.user)
         self.layout.add_widget(self.toolbar)
