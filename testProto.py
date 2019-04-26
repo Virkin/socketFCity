@@ -19,7 +19,7 @@ class ProtobufProcessing() :
   			database=database
 		)
 
-	def resetDbConnection():
+	def resetDbConnection(self):
 		self.mydb = mysql.connector.connect(
   			host=host,
   			user=user,
