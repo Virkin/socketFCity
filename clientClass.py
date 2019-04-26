@@ -81,7 +81,7 @@ class ClientSocket :
             # Receive all element of the server database
             self.protobufProcess.protobufElementToDb(recv)
 
-            msg = protobufProcess.startRide()
+            msg = self.protobufProcess.startRide()
             s=struct.pack(">L",len(msg))+msg
             self.sock.send(s)
 
