@@ -234,7 +234,7 @@ class NavigationApp(App):
         self.t += 1
 
         self.speedVal = round(random.uniform(20,30)*(math.sin(self.t*0.01)+1),2)
-        self.intensityVal = round(self.speed/10,2)
+        self.intensityVal = round(self.speedVal/10,2)
 
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,1,self.speedVal,now.strftime('%Y-%m-%d %H:%M:%S')))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
