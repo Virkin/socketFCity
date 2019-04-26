@@ -60,7 +60,7 @@ class ClientSocket :
 
         self.progress = 0
 
-         try:
+        try:
             data = synchro_pb2.CarToServ()
             data.synchronizeRequest.Clear()
             # Connect to server and send data
