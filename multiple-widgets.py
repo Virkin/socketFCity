@@ -193,17 +193,24 @@ class NavigationApp(App):
         self.layout.clear_widgets()
         self.popuplayout = BoxLayout()
         self.layout.add_widget(self.popuplayout)
-        self.progress = ProgressBar(max=100, value=0)
+        self.progress = ProgressBar(max=4, value=0)
         self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
         self.progress_clock = Clock.schedule_interval(self.next, 1/25)
         self.popuplayout.add_widget(self.popup)
 
+        curs = self.mydb.cursor()
+        now = datetime.datetime.now()
+        curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
+        curs.close()
+        self.mydb.commit()
+        cltSock.endRide()
+
     def next(self, dt):
-        if self.progress.value == 100:
+        if self.cltSock.getProgress() == 4:
             self.progress_clock.cancel()
             quit()
         else:
-            self.progress.value += 1
+            self.progress.value = self.cltSock.getProgress()
 
     def update_pos(self, dt):
         if self.rideId > 0 :
@@ -219,7 +226,7 @@ class NavigationApp(App):
             self.insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
-            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(self.speedVal)
+            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
             self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.voltageVal*self.intensityVal)))
 

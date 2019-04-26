@@ -58,6 +58,8 @@ class ClientSocket :
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
 
+        self.progress = 0
+
     def startRide(self) :
         try:
             data = synchro_pb2.CarToServ()
@@ -89,6 +91,9 @@ class ClientSocket :
         else :
             return self.protobufProcess.setCurrentRide()
 
+    def getProgress(self):
+        return self.progress
+
     def endRide(self):
         try:    
             s=struct.pack(">L",len(msg))+msg
@@ -100,15 +105,22 @@ class ClientSocket :
                 print("The server socket doesnt return response for the start ride")
                 sys.exit(1)
 
-            msg = self.protobufProcess.generateData()
+            msg = self.protobufProcess.generateDataMsg().SerializeToString()
+
+            self.progress += 1
 
             s=struct.pack(">L",len(msg))+msg
             self.sock.send(s)
 
+            self.progress += 1
+
             recv = self.sock.recv(1024)
+
+            self.progress += 1
 
             if self.protobufProcess.isTaskDone(recv) == True :
                 self.sock.close()
+                self.progress +=1
 
         except Exception as e:
             raise(e)
