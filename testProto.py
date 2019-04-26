@@ -12,19 +12,24 @@ class ProtobufProcessing() :
 		self.mode = mode
 		self.currentRideId = 1
 
+		self.host=host
+		self.user=user
+		self.passwd=passwd
+		self.database=database
+
 		self.mydb = mysql.connector.connect(
-  			host=host,
-  			user=user,
- 			passwd=passwd,
-  			database=database
+  			host=self.host,
+  			user=self.user,
+ 			passwd=self.passwd,
+  			database=self.database
 		)
 
 	def resetDbConnection(self):
 		self.mydb = mysql.connector.connect(
-  			host=host,
-  			user=user,
- 			passwd=passwd,
-  			database=database
+  			host=self.host,
+  			user=self.user,
+ 			passwd=self.passwd,
+  			database=self.database
 		)
 
 
