@@ -55,7 +55,6 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 					msg = synchro_pb2.CarToServ.FromString(self.data);
 
 					if msg.HasField("synchronizeRequest") :
-						
 						resp = self.protobufProccess.generateProto()
 						s=struct.pack(">L",len(resp))+resp
 						self.request.sendall(s)
