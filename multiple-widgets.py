@@ -200,7 +200,7 @@ class NavigationApp(App):
 
         curs = self.mydb.cursor()
         now = datetime.now()
-        curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
+        curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
         curs.close()
         self.mydb.commit()
         cltSock.endRide()
