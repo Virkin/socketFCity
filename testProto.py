@@ -19,6 +19,15 @@ class ProtobufProcessing() :
   			database=database
 		)
 
+	def resetDbConnection():
+		self.mydb = mysql.connector.connect(
+  			host=host,
+  			user=user,
+ 			passwd=passwd,
+  			database=database
+		)
+
+
 	def addElement(self, element, table, row) :
 		curs = self.mydb.cursor(dictionary=True)
 
@@ -190,6 +199,8 @@ class ProtobufProcessing() :
 
 
 	def generateDataMsg(self) :
+		self.resetDbConnection()
+
 		curs = self.mydb.cursor(dictionary=True)
 
 		print("SELECT end_date from ride where id={}".format(self.currentRideId))
