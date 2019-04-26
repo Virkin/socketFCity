@@ -81,6 +81,16 @@ class ClientSocket :
             # Receive all element of the server database
             self.protobufProcess.protobufElementToDb(recv)
 
+            msg = protobufProcess.startRide()
+            s=struct.pack(">L",len(msg))+msg
+            self.sock.send(s)
+
+            recv = self.sock.recv(1024)
+
+            if self.protobufProcess.isTaskDone(recv) != True :
+                print("The server socket doesnt return response for the start ride")
+                sys.exit(1)
+
         except Exception as e:
             raise(e)
 
@@ -96,14 +106,6 @@ class ClientSocket :
 
     def endRide(self):
         try:    
-            s=struct.pack(">L",len(msg))+msg
-            self.sock.send(s)
-
-            recv = self.sock.recv(1024)
-
-            if self.protobufProcess.isTaskDone(recv) != True :
-                print("The server socket doesnt return response for the start ride")
-                sys.exit(1)
 
             msg = self.protobufProcess.generateDataMsg().SerializeToString()
 
