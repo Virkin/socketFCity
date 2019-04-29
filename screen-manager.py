@@ -166,7 +166,6 @@ class MainScreen(Screen):
         self.t = 0
 
         self.cltSock = ClientSocket()
-        self.cltSock.startRide()
 
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
@@ -257,6 +256,7 @@ class MainScreen(Screen):
             self.rideId = -1
 
         self.cltSock.setCurrentRide(self.rideId)
+        self.cltSock.startRide()
 
         curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
