@@ -298,7 +298,7 @@ class MainScreen(Screen):
             self.cltSock.endRide()
 
     def next(self, dt):
-        if self.cltSock.getProgress() == 4:
+        if self.cltSock.getProgress() == 4 or self.rideId == -1:
             self.progress_clock.cancel()
             quit()
         else:
