@@ -21,16 +21,19 @@ from clientClass import ClientSocket
 import mysql.connector
 import math 
 import random
+from queue import Queue
 
 
 class GraphScreen(Screen):
-    def __init__(self, **kwargs):
+    def __init__(self, q, **kwargs):
         super(GraphScreen, self).__init__(**kwargs)
         self.layoutgraph = RelativeLayout()
         self.layoutgraph.add_widget(self.build())
         self.gotomain = Button(text="Back to main screen", size=(250, 30), size_hint=(None, None), on_release=self.switchtomain)
         self.layoutgraph.add_widget(self.gotomain)
         self.add_widget(self.layoutgraph)
+
+        self.q = q
 
     def switchtomain(self, *args):
         self.manager.transition.direction = "right"
@@ -70,6 +73,7 @@ class GraphScreen(Screen):
             self.plot.points.pop(-len(self.plot.points))
         self.index += 1
         self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
+        print("Puiss : {}".format(self.q.get()))
 
     def number(self):
         number = randint(0, 50)
@@ -78,7 +82,7 @@ class GraphScreen(Screen):
         return number
 
 class MainScreen(Screen):
-    def __init__(self, **kwargs):
+    def __init__(self, q, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         #self.layoutmain = BoxLayout(orientation="horizontal")
         #self.gotograph = Button(text="Graph", on_release=self.switchtograph)
@@ -88,6 +92,8 @@ class MainScreen(Screen):
         self.on_start()
         self.layoutmain.add_widget(self.build())
         self.add_widget(self.layoutmain)
+
+        self.q = q
 
     def switchtograph(self, *args):
         self.manager.transition.direction = "left"
@@ -312,7 +318,10 @@ class MainScreen(Screen):
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
-            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.voltageVal*self.intensityVal)))
+
+            self.puiss = self.voltageVal*self.intensityVal
+            self.q.put(self.puiss)
+            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.puiss)))
 
     def insertFakeData(self) :
         self.t += 1
@@ -335,8 +344,10 @@ class MainScreen(Screen):
 class NavigationApp(App):
     def build(self):
         sm = ScreenManager()
-        mainscreen = MainScreen(name="main")
-        graphscreen = GraphScreen(name="graph")
+
+        q=Queue()
+        mainscreen = MainScreen(name="main", q=q)
+        graphscreen = GraphScreen(name="graph", q=q)
         sm.add_widget(mainscreen)
         sm.add_widget(graphscreen)
         return sm
