@@ -123,7 +123,7 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 
 if __name__ == "__main__":
 	
-	HOST, PORT = "172.17.3.241", 8080
+	HOST, PORT = "localhost", 8080
 	carPort = list(range(8090, 8100))
 	server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 	server.serve_forever()
