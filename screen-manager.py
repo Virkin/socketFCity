@@ -21,17 +21,16 @@ from clientClass import ClientSocket
 import mysql.connector
 import math 
 import random
-from queue import Queue
+
 
 class GraphScreen(Screen):
-    def __init__(self, q, **kwargs):
+    def __init__(self, **kwargs):
         super(GraphScreen, self).__init__(**kwargs)
         self.layoutgraph = RelativeLayout()
         self.layoutgraph.add_widget(self.build())
         self.gotomain = Button(text="Back to main screen", size=(250, 30), size_hint=(None, None), on_release=self.switchtomain)
         self.layoutgraph.add_widget(self.gotomain)
         self.add_widget(self.layoutgraph)
-        self.q = q
 
     def switchtomain(self, *args):
         self.manager.transition.direction = "right"
@@ -72,8 +71,6 @@ class GraphScreen(Screen):
         self.index += 1
         self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
 
-        print("Puiss : {}".format(self.q.get()))
-
     def number(self):
         number = randint(0, 50)
         if number > self.graph.ymax:
@@ -81,17 +78,16 @@ class GraphScreen(Screen):
         return number
 
 class MainScreen(Screen):
-    def __init__(self, q, **kwargs):
+    def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         #self.layoutmain = BoxLayout(orientation="horizontal")
         #self.gotograph = Button(text="Graph", on_release=self.switchtograph)
         #self.layoutmain.add_widget(self.gotograph)
         #self.add_widget(self.layoutmain)
         self.layoutmain = RelativeLayout()
-        self.layoutmain.add_widget(self.run())
+        self.on_start()
+        self.layoutmain.add_widget(self.build())
         self.add_widget(self.layoutmain)
-
-        self.q = q
 
     def switchtograph(self, *args):
         self.manager.transition.direction = "left"
@@ -120,6 +116,7 @@ class MainScreen(Screen):
         self.acceleration = Label(font_size="30sp", markup=True)
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
         self.user = Button(text="Connexion (Badge ISEN)", font_size="30sp", markup=True, on_release=self.read_card)
+        self.gotograph = Button(text="Graph", on_release=self.switchtograph)
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
 
         # Widget
@@ -129,6 +126,7 @@ class MainScreen(Screen):
         self.toolbar.add_widget(self.vitesse)
         self.toolbar.add_widget(self.acceleration)
         self.toolbar.add_widget(self.user)
+        self.toolbar.add_widget(self.gotograph)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
 
@@ -314,10 +312,7 @@ class MainScreen(Screen):
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
-            
-            self.puiss = self.voltageVal*self.intensityVal
-            self.q.put(self.puiss)
-            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.puiss)))
+            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.voltageVal*self.intensityVal)))
 
     def insertFakeData(self) :
         self.t += 1
@@ -340,11 +335,8 @@ class MainScreen(Screen):
 class NavigationApp(App):
     def build(self):
         sm = ScreenManager()
-
-        q = Queue()
-
-        mainscreen = MainScreen(name="main", q=q)
-        graphscreen = GraphScreen(name="graph", q=q)
+        mainscreen = MainScreen(name="main")
+        graphscreen = GraphScreen(name="graph")
         sm.add_widget(mainscreen)
         sm.add_widget(graphscreen)
         return sm
