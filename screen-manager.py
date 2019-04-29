@@ -66,18 +66,17 @@ class GraphScreen(Screen):
         return self.graph
 
     def update_points(self, *args):
-        self.plot.points.append(tuple((self.index, self.number())))
-        self.graph.xmax += 1
-        if len(self.plot.points) > 60:
-            self.graph.xmin += 1
-            self.plot.points.pop(-len(self.plot.points))
-        self.index += 1
-        self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
         if not self.q.empty():
-            print("Puiss : {}".format(self.q.get()))
+            self.plot.points.append(tuple((self.index, self.number())))
+            self.graph.xmax += 1
+            if len(self.plot.points) > 60:
+                self.graph.xmin += 1
+                self.plot.points.pop(-len(self.plot.points))
+            self.index += 1
+            self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
 
     def number(self):
-        number = randint(0, 50)
+        number = self.q.get()
         if number > self.graph.ymax:
             self.graph.ymax = number
         return number
