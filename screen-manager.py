@@ -289,12 +289,13 @@ class MainScreen(Screen):
         self.progress_clock = Clock.schedule_interval(self.next, 1/25)
         self.popuplayout.add_widget(self.popup)
 
-        curs = self.mydb.cursor()
-        now = datetime.now()
-        curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
-        curs.close()
-        self.mydb.commit()
-        self.cltSock.endRide()
+        if self.rideId != -1 :
+            curs = self.mydb.cursor()
+            now = datetime.now()
+            curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
+            curs.close()
+            self.mydb.commit()
+            self.cltSock.endRide()
 
     def next(self, dt):
         if self.cltSock.getProgress() == 4:
