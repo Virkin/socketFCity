@@ -62,6 +62,7 @@ class GraphScreen(Screen):
         self.plot = MeshLinePlot(color=[1, 0, 0, 1])
         self.graph.add_plot(self.plot)
         self.plot.points = []
+        self.offset = 1
         Clock.schedule_interval(self.update_points, 1)
         return self.graph
 
@@ -81,8 +82,12 @@ class GraphScreen(Screen):
 
     def number(self):
         number = self.q.get()
+        
         if number > self.graph.ymax:
-            self.graph.ymax = number
+            self.graph.ymax = number + self.offset
+        elif number < self.graph.ymin or ymin == 0:
+            self.graph.ymin = number - self.offset 
+
         return number
 
 class MainScreen(Screen):
