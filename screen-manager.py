@@ -85,7 +85,7 @@ class GraphScreen(Screen):
         
         if number > self.graph.ymax:
             self.graph.ymax = number + self.offset
-        elif number < self.graph.ymin or ymin == 0:
+        elif number < self.graph.ymin or self.graph.ymin == 0:
             self.graph.ymin = number - self.offset 
 
         return number
