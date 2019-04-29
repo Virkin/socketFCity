@@ -73,7 +73,7 @@ class GraphScreen(Screen):
             self.plot.points.pop(-len(self.plot.points))
         self.index += 1
         self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
-        if not q.empty():
+        if not self.q.empty():
             print("Puiss : {}".format(self.q.get()))
 
     def number(self):
