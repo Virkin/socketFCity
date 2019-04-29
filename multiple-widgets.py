@@ -82,7 +82,6 @@ class NavigationApp(App):
         self.t = 0
 
         self.cltSock = ClientSocket()
-        self.cltSock.startRide()
 
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
@@ -187,6 +186,8 @@ class NavigationApp(App):
         curs.close()
         self.mydb.commit()
 
+        self.cltSock.startRide()
+        
         self.user = Label(text="[b]User :[/b] {}".format(nickname), font_size="30sp", markup=True)
         
         if self.rideId == -1 :
