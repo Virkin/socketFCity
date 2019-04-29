@@ -20,7 +20,7 @@ def recv_message(connection,sz):
 class ClientSocket :
 
     def __init__(self):
-        self.HOST = "172.17.3.241"
+        self.HOST = "172.31.3.59"
         self.PORT = 8080
 
         self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
