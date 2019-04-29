@@ -67,8 +67,11 @@ class GraphScreen(Screen):
 
     def update_points(self, *args):
         if not self.q.empty():
+            if len(self.plot.points) > 1:
+                self.graph.xmax += 1
+
             self.plot.points.append(tuple((self.index, self.number())))
-            self.graph.xmax += 1
+
             if len(self.plot.points) > 60:
                 self.graph.xmin += 1
                 self.plot.points.pop(-len(self.plot.points))
