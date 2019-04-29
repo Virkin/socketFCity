@@ -42,18 +42,18 @@ class GraphScreen(Screen):
     def build(self):
         self.graph = Graph(
             xlabel='Nombre de secondes écoulées',
-            ylabel='Vitesse km/h',
+            ylabel='Puissance (W)',
             x_ticks_minor=1,
-            x_ticks_major=10,
+            x_ticks_major=1,
             y_ticks_minor=1,
-            y_ticks_major=5,
+            y_ticks_major=1,
             y_grid_label=True,
             x_grid_label=True,
-            padding=5,
+            padding=10,
             xlog=False,
             ylog=False,
-            x_grid=False,
-            y_grid=False,
+            x_grid=True,
+            y_grid=True,
             xmin=0,
             xmax=1,
             ymin=0,
@@ -76,7 +76,10 @@ class GraphScreen(Screen):
             #if len(self.plot.points) > 60:
             #    self.graph.xmin += 1
             #    self.plot.points.pop(-len(self.plot.points))
-            
+
+            self.graph.y_ticks_major = (self.graph.ymax - self.graph.ymin) / 10
+            self.graph.x_ticks_major = (self.graph.xmax - self.graph.xmin) / 10
+
             self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
             self.index += 1
 
