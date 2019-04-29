@@ -73,9 +73,9 @@ class GraphScreen(Screen):
 
             self.plot.points.append(tuple((self.index, self.number())))
 
-            if len(self.plot.points) > 60:
-                self.graph.xmin += 1
-                self.plot.points.pop(-len(self.plot.points))
+            #if len(self.plot.points) > 60:
+            #    self.graph.xmin += 1
+            #    self.plot.points.pop(-len(self.plot.points))
             
             self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
             self.index += 1
