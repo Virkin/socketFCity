@@ -256,6 +256,7 @@ class MainScreen(Screen):
         curs = self.mydb.cursor()
 
         try :
+            print("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(badgeId))
             curs.execute("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(badgeId))
             res = curs.fetchone()
 
