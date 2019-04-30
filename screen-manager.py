@@ -295,11 +295,14 @@ class MainScreen(Screen):
         self.maplayout.clear_widgets()
         self.toolbar.clear_widgets()
         self.layout.clear_widgets()
+
+        print("hehe j'ai clear les widgets alors refresh moi !!!")
+
         self.popuplayout = BoxLayout()
         self.layout.add_widget(self.popuplayout)
         self.progress = ProgressBar(max=4, value=0)
         self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
-        self.progress_clock = Clock.schedule_interval(self.next, 1/25)
+        self.progress_clock = Clock.schedule_interval(self.next, 1)
         self.popuplayout.add_widget(self.popup)
 
         if self.rideId != -1 :
