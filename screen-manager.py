@@ -301,7 +301,6 @@ class MainScreen(Screen):
         self.layout.add_widget(self.popuplayout)
         self.progress = ProgressBar(max=4, value=0)
         self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
-        self.progress_clock = Clock.schedule_interval(self.next, 1)
         self.popuplayout.add_widget(self.popup)
 
         if self.rideId != -1 :
@@ -315,6 +314,7 @@ class MainScreen(Screen):
             t = Thread(target=myFunc, args=(self.endQ,))
             t.start()
             self.cltSock.endRide()
+            self.progress_clock = Clock.schedule_interval(self.next, 1)
 
     def next(self, dt):
         if not self.endQ.empty():
