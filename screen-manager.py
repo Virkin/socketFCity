@@ -21,7 +21,7 @@ from clientClass import ClientSocket
 import mysql.connector
 import math 
 import random
-from threading import thread
+from threading import Thread
 from queue import Queue
 
 
