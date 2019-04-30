@@ -311,9 +311,8 @@ class MainScreen(Screen):
             self.mydb.commit()
 
             self.endQ = Queue()
-            t = Thread(target=myFunc, args=(self.endQ,))
+            t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
             t.start()
-            self.cltSock.endRide()
             self.progress_clock = Clock.schedule_interval(self.next, 1)
 
     def next(self, dt):
