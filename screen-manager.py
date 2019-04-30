@@ -296,8 +296,6 @@ class MainScreen(Screen):
         self.toolbar.clear_widgets()
         self.layout.clear_widgets()
 
-        print("hehe j'ai clear les widgets alors refresh moi !!!")
-
         self.popuplayout = BoxLayout()
         self.layout.add_widget(self.popuplayout)
         self.progress = ProgressBar(max=4, value=0)
@@ -311,14 +309,20 @@ class MainScreen(Screen):
             curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
             curs.close()
             self.mydb.commit()
+
+            self.endQ = Queue()
+            t = Thread(target=myFunc, args=(self.endQ,))
+            t.start()
             self.cltSock.endRide()
 
     def next(self, dt):
-        if self.cltSock.getProgress() == 4 or self.rideId == -1:
+        if not self.endQ.empty():
+            self.progress.value = self.endQ.get()
+        
+        if self.progress.value == 4 or self.rideId == -1:
             self.progress_clock.cancel()
             quit()
-        else:
-            self.progress.value = self.cltSock.getProgress()
+                
 
     def update_pos(self, dt):
         if self.rideId > 0 :

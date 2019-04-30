@@ -103,25 +103,29 @@ class ClientSocket :
     def getProgress(self):
         return self.progress
 
-    def endRide(self):
+    def endRide(self, endQ):
         try:    
 
             msg = self.protobufProcess.generateDataMsg().SerializeToString()
 
             self.progress += 1
+            endQ.put(self.progress)
 
             s=struct.pack(">L",len(msg))+msg
             self.sock.send(s)
 
             self.progress += 1
+            endQ.put(self.progress)
 
             recv = self.sock.recv(1024)
 
             self.progress += 1
+            endQ.put(self.progress)
 
             if self.protobufProcess.isTaskDone(recv) == True :
                 self.sock.close()
                 self.progress +=1
+                endQ.put(self.progress)
 
         except Exception as e:
             raise(e)
