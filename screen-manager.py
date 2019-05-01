@@ -19,7 +19,7 @@ from datetime import datetime
 import time
 from clientClass import ClientSocket
 import mysql.connector
-import math 
+import math
 import random
 from threading import Thread
 from queue import Queue
@@ -30,7 +30,7 @@ class GraphScreen(Screen):
         super(GraphScreen, self).__init__(**kwargs)
         self.layoutgraph = RelativeLayout()
         self.layoutgraph.add_widget(self.build())
-        self.gotomain = Button(text="Back to main screen", size=(250, 30), size_hint=(None, None), on_release=self.switchtomain)
+        self.gotomain = Button(text="Retour", size=(200, 35), size_hint=(None, None), on_release=self.switchtomain)
         self.layoutgraph.add_widget(self.gotomain)
         self.add_widget(self.layoutgraph)
 
@@ -86,21 +86,17 @@ class GraphScreen(Screen):
 
     def number(self):
         number = self.q.get()
-        
+
         if number > self.graph.ymax:
             self.graph.ymax = number + self.offset
         elif number < self.graph.ymin or self.graph.ymin == 0:
-            self.graph.ymin = number - self.offset 
+            self.graph.ymin = number - self.offset
 
         return number
 
 class MainScreen(Screen):
     def __init__(self, q, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
-        #self.layoutmain = BoxLayout(orientation="horizontal")
-        #self.gotograph = Button(text="Graph", on_release=self.switchtograph)
-        #self.layoutmain.add_widget(self.gotograph)
-        #self.add_widget(self.layoutmain)
         self.layoutmain = RelativeLayout()
         self.on_start()
         self.layoutmain.add_widget(self.build())
@@ -116,6 +112,10 @@ class MainScreen(Screen):
         # Layout
         self.layout = BoxLayout(orientation="horizontal")
         self.toolbar = BoxLayout(orientation="vertical")
+        self.toolbarlogograph = BoxLayout(orientation="horizontal")
+        self.toolbarpuissance = BoxLayout(orientation="horizontal")
+        self.toolbarvitesse = BoxLayout(orientation="horizontal")
+        self.toolbaracceleration = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
         with self.toolbar.canvas.before:
             Color(1, 1, 1, .5)
@@ -130,22 +130,38 @@ class MainScreen(Screen):
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
         self.logo = Image(source="ISEN-Brest_horizontal.jpg")
-        self.puissance = Label(font_size="30sp", markup=True)
-        self.vitesse = Label(font_size="30sp", markup=True)
-        self.acceleration = Label(font_size="30sp", markup=True)
+        self.graphpuissance = Button(text="Graphique temps réel", font_size="20sp", markup=True, on_release=self.switchtograph)
+        self.labelpuissance = Label(text="[b]Puissance :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labelpuissance.bind(size=self.labelpuissance.setter('text_size'))
+        self.puissance = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.puissance.bind(size=self.puissance.setter('text_size'))
+        self.labelvitesse = Label(text="[b]Vitesse :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labelvitesse.bind(size=self.labelvitesse.setter('text_size'))
+        self.vitesse = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.vitesse.bind(size=self.vitesse.setter('text_size'))
+        self.labelacceleration = Label(text="[b]Accélération :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labelacceleration.bind(size=self.labelacceleration.setter('text_size'))
+        self.acceleration = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.acceleration.bind(size=self.acceleration.setter('text_size'))
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
-        self.user = Button(text="Connexion (Badge ISEN)", font_size="30sp", markup=True, on_release=self.read_card)
-        self.gotograph = Button(text="Graph", on_release=self.switchtograph)
+        self.connexion = Button(text="Connexion (Badge ISEN)", font_size="30sp", background_color=[0, .7, 0, 1], background_normal='', markup=True, on_release=self.read_card)
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
 
         # Widget
+        self.toolbarlogograph.add_widget(self.logo)
+        self.toolbarlogograph.add_widget(self.graphpuissance)
+        self.toolbarpuissance.add_widget(self.labelpuissance)
+        self.toolbarpuissance.add_widget(self.puissance)
+        self.toolbarvitesse.add_widget(self.labelvitesse)
+        self.toolbarvitesse.add_widget(self.vitesse)
+        self.toolbaracceleration.add_widget(self.labelacceleration)
+        self.toolbaracceleration.add_widget(self.acceleration)
         self.toolbar.add_widget(self.titre)
-        self.toolbar.add_widget(self.logo)
-        self.toolbar.add_widget(self.puissance)
-        self.toolbar.add_widget(self.vitesse)
-        self.toolbar.add_widget(self.acceleration)
-        self.toolbar.add_widget(self.user)
-        self.toolbar.add_widget(self.gotograph)
+        self.toolbar.add_widget(self.toolbarlogograph)
+        self.toolbar.add_widget(self.toolbarpuissance)
+        self.toolbar.add_widget(self.toolbarvitesse)
+        self.toolbar.add_widget(self.toolbaracceleration)
+        self.toolbar.add_widget(self.connexion)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
 
@@ -250,7 +266,7 @@ class MainScreen(Screen):
             self.toolbar.remove_widget(self.alert)
         except:
             pass
-        self.toolbar.remove_widget(self.user)
+        self.toolbar.remove_widget(self.connexion)
 
         badgeId = x[11:-1]
 
@@ -282,17 +298,32 @@ class MainScreen(Screen):
         curs.close()
         self.mydb.commit()
 
-        self.user = Label(text="[b]User :[/b] {}".format(nickname), font_size="30sp", markup=True)
-
         if self.rideId == -1 :
-                self.stop = Button(text="Pas de trajet réservé", font_size="30sp", markup=True, on_release=self.stop_vehicule)
+            stoptext = "Pas de trajet réservé"
         else:
-            self.stop = Button(text="Fin du trajet", font_size="30sp", markup=True, on_release=self.stop_vehicule)
-
+            stoptext = "Fin"
+        
+        self.user = Label(text="[b]Utilisateur :[/b] {}".format(nickname), font_size="30sp", markup=True)
+        self.layout_pause_stop = BoxLayout(orientation="horizontal")
+        if self.rideId == -1:
+            stoptext = "Pas de trajet réservé"
+            self.stop = Button(text=stoptext, font_size="30sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.abort_ride)
+        else:
+            stoptext = "Fin (Parking ISEN)"
+            self.pause = Button(text="Pause", font_size="25sp", size_hint=(.6, 1), background_color=[1, .7, 0, 1], background_normal='', markup=True, on_release=self.pause_ride)
+            self.layout_pause_stop.add_widget(self.pause)
+            self.stop = Button(text=stoptext, font_size="25sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
+        self.layout_pause_stop.add_widget(self.stop)
         self.toolbar.add_widget(self.user)
-        self.toolbar.add_widget(self.stop)
+        self.toolbar.add_widget(self.layout_pause_stop)
 
-    def stop_vehicule(self, dt):
+    def abort_ride(self, dt):
+        quit()
+
+    def pause_ride(self, dt):
+        quit()
+
+    def stop_ride(self, dt):
         self.maplayout.clear_widgets()
         self.toolbar.clear_widgets()
         self.layout.clear_widgets()
@@ -337,12 +368,12 @@ class MainScreen(Screen):
             self.insertFakeData()
 
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
-            self.vitesse.text = "[b]Vitesse :[/b] {} km/h".format(int(round(self.speedVal)))
-            self.acceleration.text = "[b]Acceleration :[/b] {} g".format(round(uniform(0, 3), 2))
+            self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
+            self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
 
             self.puiss = self.voltageVal*self.intensityVal
             self.q.put(self.puiss)
-            self.puissance.text= "[b]Puissance :[/b] {} W".format(int(round(self.puiss)))
+            self.puissance.text = " {} W".format(int(round(self.puiss)))
 
     def insertFakeData(self) :
         self.t += 1
