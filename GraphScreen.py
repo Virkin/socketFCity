@@ -1,6 +1,8 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.switch import Switch
 from kivy.clock import Clock
 from kivy.garden.graph import Graph, MeshLinePlot
 from time import strftime, gmtime
@@ -12,7 +14,11 @@ class GraphScreen(Screen):
         self.layoutgraph = RelativeLayout()
         self.layoutgraph.add_widget(self.build())
         self.gotomain = Button(text="Retour", size=(200, 35), size_hint=(None, None), on_release=self.switchtomain)
+        self.labelswitch = Label(text="Dernière minute", size_hint=(None, None), pos_hint={'center_x': .82, 'center_y': .04})
+        self.switch = Switch(active=False, size=(100, 35), size_hint=(None, None), pos_hint={'center_x': .94, 'center_y': .04})
         self.layoutgraph.add_widget(self.gotomain)
+        self.layoutgraph.add_widget(self.labelswitch)
+        self.layoutgraph.add_widget(self.switch)
         self.add_widget(self.layoutgraph)
         self.q = q
 
@@ -22,7 +28,7 @@ class GraphScreen(Screen):
 
     def build(self):
         self.graph = Graph(
-            xlabel='Nombre de secondes écoulées',
+            xlabel='Secondes écoulées',
             ylabel='Puissance (W)',
             x_ticks_minor=1,
             x_ticks_major=1,
@@ -54,6 +60,12 @@ class GraphScreen(Screen):
 
             self.plot.points.append(tuple((self.index, self.number())))
 
+            if self.switch.active:
+                if len(self.plot.points) > 60:
+                    self.graph.xmin = self.graph.xmax - 60
+            else:
+                self.graph.xmin = 0
+
             #if len(self.plot.points) > 60:
             #    self.graph.xmin += 1
             #    self.plot.points.pop(-len(self.plot.points))
@@ -61,7 +73,7 @@ class GraphScreen(Screen):
             self.graph.y_ticks_major = (self.graph.ymax - self.graph.ymin) / 10
             self.graph.x_ticks_major = (self.graph.xmax - self.graph.xmin) / 10
 
-            self.graph.xlabel = "Nombre de secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
+            self.graph.xlabel = "Secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
             self.index += 1
 
     def number(self):
