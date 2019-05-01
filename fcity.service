@@ -1,0 +1,13 @@
+[Unit]
+Description=Kivy FCity App
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/socket/socketFCity/NavigationApp.py > /home/pi/socket/socketFCity/NavigationApp.log 2>&1
+WorkingDirectory=/home/pi/socket/socketFCity
+User=pi
+RemainAfterExit=no
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
