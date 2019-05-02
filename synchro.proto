@@ -37,7 +37,7 @@ message StartOfRideResponse {
 message EndOfRideRequest {
 	required int32 id = 1;
 	required string endDate = 2;
-	optional db.element element = 3;
+	optional bytes data = 3;
 }
 
 message EndOfRideResponse {

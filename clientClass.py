@@ -106,7 +106,7 @@ class ClientSocket :
     def endRide(self, endQ):
         try:    
 
-            msg = self.protobufProcess.generateDataMsg().SerializeToString()
+            msg = self.protobufProcess.generateDataMsg()
 
             self.progress += 1
             endQ.put(self.progress)

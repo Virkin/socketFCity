@@ -4,7 +4,8 @@ import mysql.connector
 import datetime
 import random
 import time
-import math 
+import math
+import lzma 
 
 class ProtobufProcessing() :
 	def __init__(self, mode, host, user, passwd, database) :
@@ -32,18 +33,6 @@ class ProtobufProcessing() :
   			database=self.database
 		)
 
-
-	def addElement(self, element, table, row) :
-		curs = self.mydb.cursor(dictionary=True)
-
-		curs.execute("SHOW columns FROM {}".format(table))
-
-		result = curs.fetchall()
-
-		for column in result :
-			setattr(element, column["Field"], str(row[column["Field"]]))
-
-		curs.close()
 		
 	def generateProto(self) :
 		resp = synchro_pb2.ServToCar()
@@ -142,9 +131,21 @@ class ProtobufProcessing() :
 	def protobufDataToDb(self,msg) :
 		curs = self.mydb.cursor(dictionary=True)
 
+		data = msg.endOfRideRequest.data
+		data = str(lzma.decompress(data))
+
 		curs.execute("UPDATE ride SET end_date='{}' WHERE id='{}'".format(msg.endOfRideRequest.endDate, msg.endOfRideRequest.id))
 
-		self.insertData(msg.endOfRideRequest.element)
+		while data.find("{") != -1 :
+			startPos = data.find("{")
+			endPos = data.find("}")
+			row = data[startPos+1:endPos]
+			data = data[endPos+1:]
+			elm = row.split(',')
+			#print("mId : {} / val : {} / date : {}\n".format(*elm)) # Insert request instead !
+			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},{}".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(elm[2]).strftime('%Y-%m-%d %H:%M:%S')))
+
+		#self.insertData(msg.endOfRideRequest.element)
 
 		curs.close()
 		
@@ -193,6 +194,18 @@ class ProtobufProcessing() :
 	def setCurrentRide(self, rideId) :
 		self.currentRideId = rideId;
 
+	def addElement(self, element, table, row) :
+		curs = self.mydb.cursor(dictionary=True)
+
+		curs.execute("SHOW columns FROM {}".format(table))
+
+		result = curs.fetchall()
+
+		for column in result :
+			setattr(element, column["Field"], str(row[column["Field"]]))
+
+		curs.close()
+
 	def generateDataMsg(self) :
 		self.resetDbConnection()
 
@@ -212,16 +225,24 @@ class ProtobufProcessing() :
 
 		table = "data"
 
-		curs.execute("SELECT * FROM {}".format(table))
+		curs.execute("SELECT measure_id, value, added_on FROM {}".format(table))
 
 		result = curs.fetchall()
 
+		mystr = "["
+
 		for row in result :
-			self.addElement(getattr(msg.endOfRideRequest.element, table).add(), table, row)
+			mystr+="{{{},{},{}}},".format(row["measure_id"] ,row["value"], int(row["added_on"].timestamp()))
+
+		mystr = mystr[:-1] + "]"
+
+		mystrCompress = lzma.compress(mystr.encode('utf_8'))
+
+		msg.endOfRideRequest.data = mystrCompress
 
 		curs.close()
 
-		return msg
+		return msg.SerializeToString()
 
 	def generateData(self) :
 		self.insertFakeData()
@@ -241,7 +262,9 @@ class ProtobufProcessing() :
 	def setStartRide(self, msg) :
 		curs = self.mydb.cursor()
 
-		curs.execute("UPDATE ride SET start_date='{}' WHERE id='{}'".format(msg.startOfRideRequest.startDate, msg.startOfRideRequest.id))
+		self.currentRideId = msg.startOfRideRequest.id
+
+		curs.execute("UPDATE ride SET start_date='{}' WHERE id='{}'".format(msg.startOfRideRequest.startDate, self.currentRideId))
 
 		curs.close()
 		self.mydb.commit()
