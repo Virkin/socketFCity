@@ -295,8 +295,17 @@ class ProtobufProcessing() :
 		else :
 			return False
 
+	def detectPause(self) :
+		curs = self.mydb.cursor(dictionary=True)
 
+		curs.execute("SELECT start_date, end_date FROM ride WHERE start_date IS NOT NULL AND end_date IS NULL")
 
+		if curs.fetchone():
+			curs.close()
+			return True
+		else:
+			curs.close()
+			return False
 
 
 if __name__ == "__main__":
