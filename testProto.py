@@ -143,7 +143,7 @@ class ProtobufProcessing() :
 			data = data[endPos+1:]
 			elm = row.split(',')
 			#print("mId : {} / val : {} / date : {}\n".format(*elm)) # Insert request instead !
-			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},{}".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(elm[2]).strftime('%Y-%m-%d %H:%M:%S')))
+			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},{}".format(self.currentRideId, elm[0], elm[1], datetime.datetime.fromtimestamp(elm[2]).strftime('%Y-%m-%d %H:%M:%S')))
 
 		#self.insertData(msg.endOfRideRequest.element)
 
