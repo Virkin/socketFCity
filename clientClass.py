@@ -58,7 +58,6 @@ class ClientSocket :
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
-        self.sock.settimeout(100000)
 
         self.progress = 0
 
@@ -95,6 +94,8 @@ class ClientSocket :
             if self.protobufProcess.isTaskDone(recv) != True :
                 print("The server socket doesnt return response for the start ride")
                 sys.exit(1)
+            else :
+                self.sock.close()
 
         except Exception as e:
             raise(e)
@@ -107,6 +108,8 @@ class ClientSocket :
 
     def endRide(self, endQ):
         try:    
+
+            self.sock.connect((self.HOST, self.PORT))
 
             msg = self.protobufProcess.generateDataMsg()
 
