@@ -58,6 +58,7 @@ class ClientSocket :
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
+        self.sock.settimeout(None)
 
         self.progress = 0
 
