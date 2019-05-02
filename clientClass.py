@@ -25,8 +25,8 @@ class ClientSocket :
 
         self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
-        if not self.protobufProcess.detectPause():
-            self.protobufProcess.clearDb()
+        #if not self.protobufProcess.detectPause():
+        self.protobufProcess.clearDb()
 
         data = synchro_pb2.CarToServ()
         data.connectionRequest.Clear()
