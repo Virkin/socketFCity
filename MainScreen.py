@@ -42,6 +42,7 @@ class MainScreen(Screen):
         self.toolbarpuissance = BoxLayout(orientation="horizontal")
         self.toolbarvitesse = BoxLayout(orientation="horizontal")
         self.toolbaracceleration = BoxLayout(orientation="horizontal")
+        self.toolbareclairement = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
         with self.toolbar.canvas.before:
             Color(1, 1, 1, .5)
@@ -69,6 +70,11 @@ class MainScreen(Screen):
         self.labelacceleration.bind(size=self.labelacceleration.setter('text_size'))
         self.acceleration = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
         self.acceleration.bind(size=self.acceleration.setter('text_size'))
+        self.labeleclairement = Label(text="[b]Eclairement :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labeleclairement.bind(size=self.labeleclairement.setter('text_size'))
+        self.eclairement = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.eclairement.bind(size=self.eclairement.setter('text_size'))
+
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
         self.connexion = Button(text="Connexion (Badge ISEN)", font_size="30sp", background_color=[0, .7, 0, 1], background_normal='', markup=True, on_release=self.read_card)
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
@@ -82,11 +88,14 @@ class MainScreen(Screen):
         self.toolbarvitesse.add_widget(self.vitesse)
         self.toolbaracceleration.add_widget(self.labelacceleration)
         self.toolbaracceleration.add_widget(self.acceleration)
+        self.toolbareclairement.add_widget(self.labeleclairement)
+        self.toolbareclairement.add_widget(self.eclairement)
         self.toolbar.add_widget(self.titre)
         self.toolbar.add_widget(self.toolbarlogograph)
         self.toolbar.add_widget(self.toolbarpuissance)
         self.toolbar.add_widget(self.toolbarvitesse)
         self.toolbar.add_widget(self.toolbaracceleration)
+        self.toolbar.add_widget(self.toolbareclairement)
         self.toolbar.add_widget(self.connexion)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
@@ -294,6 +303,7 @@ class MainScreen(Screen):
             self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
+            self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
 
             self.puiss = self.voltageVal*self.intensityVal
             self.q.put(self.puiss)
