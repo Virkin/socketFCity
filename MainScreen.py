@@ -319,11 +319,12 @@ class MainScreen(Screen):
             self.home.lat = self.map.lat
 
     def update(self, dt):
+        self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
+
         if self.rideId > 0 :
 
             self.insertFakeData()
 
-            self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
             self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
             self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
