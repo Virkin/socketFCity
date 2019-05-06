@@ -258,6 +258,8 @@ class ProtobufProcessing() :
 		msg = synchro_pb2.CarToServ()
 		msg.startOfRideRequest.id=self.currentRideId
 		msg.startOfRideRequest.startDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+		print(msg)
 		return msg.SerializeToString()
 
 	def setStartRide(self, msg) :

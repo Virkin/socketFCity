@@ -26,7 +26,6 @@ class ClientSocket :
         self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
         #if not self.protobufProcess.detectPause():
-        self.protobufProcess.clearDb()
 
         data = synchro_pb2.CarToServ()
         data.connectionRequest.Clear()
@@ -61,7 +60,10 @@ class ClientSocket :
 
         self.progress = 0
 
+    def synchronize(self):
         try:
+            self.protobufProcess.clearDb()
+
             data = synchro_pb2.CarToServ()
             data.synchronizeRequest.Clear()
             # Connect to server and send data
@@ -81,6 +83,7 @@ class ClientSocket :
             self.protobufProcess.protobufElementToDb(recv)
         except Exception as e:
             raise(e)
+
 
     def startRide(self) :
 

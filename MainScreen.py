@@ -25,8 +25,8 @@ class MainScreen(Screen):
     def __init__(self, q, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.layoutmain = RelativeLayout()
-        self.on_start()
         self.layoutmain.add_widget(self.build())
+        self.on_start()
         self.add_widget(self.layoutmain)
         self.q = q
 
@@ -127,6 +127,23 @@ class MainScreen(Screen):
 
         self.cltSock = ClientSocket()
 
+        curs = self.mydb.cursor()
+
+        curs.execute("SELECT r.id as rideId, u.badgeId as badgeId FROM ride as r JOIN users as u ON u.id=r.user_id WHERE r.start_date IS NOT NULL and r.end_date IS NULL and NOW() between r.start_reservation and r.end_reservation")
+
+        res = curs.fetchone()
+        curs.close()
+        self.mydb.commit()
+
+        if res == None :
+            self.cltSock.synchronize()
+        else :
+            self.rideId = res[0]
+            self.cltSock.setCurrentRide(self.rideId)
+            self.badgeId = res[1]
+            self.toolbar.remove_widget(self.connexion)
+            self.initialization()
+
     def update_rect(self, instance, value):
         self.rect.pos = self.toolbar.pos
         self.rect.size = self.toolbar.size
@@ -202,13 +219,13 @@ class MainScreen(Screen):
             pass
         self.toolbar.remove_widget(self.connexion)
 
-        badgeId = x[11:-1]
+        self.badgeId = x[11:-1]
 
         curs = self.mydb.cursor()
 
         try :
-            print("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(badgeId))
-            curs.execute("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(badgeId))
+            print("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(self.badgeId))
+            curs.execute("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(self.badgeId))
             res = curs.fetchone()
 
             self.rideId = res[0]
@@ -216,11 +233,18 @@ class MainScreen(Screen):
         except Exception as e:
             self.rideId = -1
 
+        curs.close()
+
         self.cltSock.setCurrentRide(self.rideId)
         self.cltSock.startRide()
 
+        self.initialization()
+
+    def initialization(self):
+        
+
         curs = self.mydb.cursor()
-        curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(badgeId))
+        curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(self.badgeId))
         res = curs.fetchone()
         nickname = res[0]
 
