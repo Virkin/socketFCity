@@ -27,7 +27,7 @@ stock.close()"""
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 
-	protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "root", "root", "fcity")
+	protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "fcity","fcity'", "fcity")
 
 	def recv_message(self, connection,sz):
 	    data = list()
@@ -83,9 +83,9 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 class MyTCPHandler(socketserver.StreamRequestHandler):
 
-	threadedSocket = {}
-
 	def handle(self):
+		# self.rfile is a file-like object created by the handler;
+		# we can now use e.g. readline() instead of raw recv() calls
 
 		data = self.request.recv(1024)
 
@@ -98,7 +98,7 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 			
 			for port in carPort :
 				try :
-					threadedSocket[port] = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
+					threadedSocket = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
 
 					server_thread = threading.Thread(target=threadedSocket.serve_forever)
 					server_thread.daemon = True
@@ -112,25 +112,18 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 					msg = synchro_pb2.CarToServ.FromString(data);
 
 					if msg.HasField("endConnectionRequest") :
-						
+						print("\nshutdown socket")
+						threadedSocket.server_close()
+						threadedSocket.shutdown()
 
 					break;
 				except Exception as e :
 					print(e)
 
-		elif msg.HasField("endConnectionRequest") :
-			print("\nshutdown socket")
-			port = msg.endConnectionRequest.port
-			threadedSocket[port].server_close()
-			threadedSocket[port].shutdown()
-
-
-
-
 
 if __name__ == "__main__":
 	
-	HOST, PORT = "172.31.3.59", 8080
+	HOST, PORT = "172.17.3.241", 8080
 	carPort = list(range(8090, 8100))
 	server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 	server.serve_forever()

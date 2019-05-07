@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='synchro.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\rsynchro.proto\x1a\x13\x66\x63ityDatabase.proto\"\x13\n\x11\x43onnectionRequest\"\"\n\x12\x43onnectionResponse\x12\x0c\n\x04port\x18\x01 \x02(\x05\"\x14\n\x12SynchronizeRequest\"3\n\x13SynchronizeResponse\x12\x1c\n\x07\x65lement\x18\x01 \x01(\x0b\x32\x0b.db.element\"3\n\x12StartOfRideRequest\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x11\n\tstartDate\x18\x02 \x02(\t\"\'\n\x13StartOfRideResponse\x12\x10\n\x08taskDone\x18\x01 \x02(\x08\"=\n\x10\x45ndOfRideRequest\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x0f\n\x07\x65ndDate\x18\x02 \x02(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"%\n\x11\x45ndOfRideResponse\x12\x10\n\x08taskDone\x18\x01 \x02(\x08\"\x16\n\x14\x45ndConnectionRequest\"\xfe\x01\n\tCarToServ\x12-\n\x11\x63onnectionRequest\x18\x01 \x01(\x0b\x32\x12.ConnectionRequest\x12/\n\x12synchronizeRequest\x18\x02 \x01(\x0b\x32\x13.SynchronizeRequest\x12/\n\x12startOfRideRequest\x18\x03 \x01(\x0b\x32\x13.StartOfRideRequest\x12+\n\x10\x65ndOfRideRequest\x18\x04 \x01(\x0b\x32\x11.EndOfRideRequest\x12\x33\n\x14\x65ndConnectionRequest\x18\x05 \x01(\x0b\x32\x15.EndConnectionRequest\"\xd1\x01\n\tServToCar\x12/\n\x12\x63onnectionResponse\x18\x01 \x01(\x0b\x32\x13.ConnectionResponse\x12\x31\n\x13synchronizeResponse\x18\x02 \x01(\x0b\x32\x14.SynchronizeResponse\x12\x31\n\x13startOfRideResponse\x18\x03 \x01(\x0b\x32\x14.StartOfRideResponse\x12-\n\x11\x65ndOfRideResponse\x18\x04 \x01(\x0b\x32\x12.EndOfRideResponse*L\n\x05table\x12\t\n\x05users\x10\x01\x12\x0b\n\x07vehicle\x10\x02\x12\x08\n\x04ride\x10\x03\x12\n\n\x06sensor\x10\x04\x12\x0b\n\x07measure\x10\x05\x12\x08\n\x04\x64\x61ta\x10\x06')
+  serialized_pb=_b('\n\rsynchro.proto\x1a\x13\x66\x63ityDatabase.proto\"\x13\n\x11\x43onnectionRequest\"\"\n\x12\x43onnectionResponse\x12\x0c\n\x04port\x18\x01 \x02(\x05\"\x14\n\x12SynchronizeRequest\"3\n\x13SynchronizeResponse\x12\x1c\n\x07\x65lement\x18\x01 \x01(\x0b\x32\x0b.db.element\"3\n\x12StartOfRideRequest\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x11\n\tstartDate\x18\x02 \x02(\t\"\'\n\x13StartOfRideResponse\x12\x10\n\x08taskDone\x18\x01 \x02(\x08\"=\n\x10\x45ndOfRideRequest\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x0f\n\x07\x65ndDate\x18\x02 \x02(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"%\n\x11\x45ndOfRideResponse\x12\x10\n\x08taskDone\x18\x01 \x02(\x08\"$\n\x14\x45ndConnectionRequest\x12\x0c\n\x04port\x18\x01 \x02(\x05\"\xfe\x01\n\tCarToServ\x12-\n\x11\x63onnectionRequest\x18\x01 \x01(\x0b\x32\x12.ConnectionRequest\x12/\n\x12synchronizeRequest\x18\x02 \x01(\x0b\x32\x13.SynchronizeRequest\x12/\n\x12startOfRideRequest\x18\x03 \x01(\x0b\x32\x13.StartOfRideRequest\x12+\n\x10\x65ndOfRideRequest\x18\x04 \x01(\x0b\x32\x11.EndOfRideRequest\x12\x33\n\x14\x65ndConnectionRequest\x18\x05 \x01(\x0b\x32\x15.EndConnectionRequest\"\xd1\x01\n\tServToCar\x12/\n\x12\x63onnectionResponse\x18\x01 \x01(\x0b\x32\x13.ConnectionResponse\x12\x31\n\x13synchronizeResponse\x18\x02 \x01(\x0b\x32\x14.SynchronizeResponse\x12\x31\n\x13startOfRideResponse\x18\x03 \x01(\x0b\x32\x14.StartOfRideResponse\x12-\n\x11\x65ndOfRideResponse\x18\x04 \x01(\x0b\x32\x12.EndOfRideResponse*L\n\x05table\x12\t\n\x05users\x10\x01\x12\x0b\n\x07vehicle\x10\x02\x12\x08\n\x04ride\x10\x03\x12\n\n\x06sensor\x10\x04\x12\x0b\n\x07measure\x10\x05\x12\x08\n\x04\x64\x61ta\x10\x06')
   ,
   dependencies=[fcityDatabase__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -59,8 +59,8 @@ _TABLE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=859,
-  serialized_end=935,
+  serialized_start=873,
+  serialized_end=949,
 )
 _sym_db.RegisterEnumDescriptor(_TABLE)
 
@@ -336,6 +336,13 @@ _ENDCONNECTIONREQUEST = _descriptor.Descriptor(
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
+    _descriptor.FieldDescriptor(
+      name='port', full_name='EndConnectionRequest.port', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -349,7 +356,7 @@ _ENDCONNECTIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=366,
-  serialized_end=388,
+  serialized_end=402,
 )
 
 
@@ -407,8 +414,8 @@ _CARTOSERV = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=391,
-  serialized_end=645,
+  serialized_start=405,
+  serialized_end=659,
 )
 
 
@@ -459,8 +466,8 @@ _SERVTOCAR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=648,
-  serialized_end=857,
+  serialized_start=662,
+  serialized_end=871,
 )
 
 _SYNCHRONIZERESPONSE.fields_by_name['element'].message_type = fcityDatabase__pb2._ELEMENT

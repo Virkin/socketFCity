@@ -143,6 +143,7 @@ class ClientSocket :
             raise(e)
 
         data = synchro_pb2.CarToServ()
+        data.endConnectionRequest.port = self.port
         data.endConnectionRequest.Clear()
 
         try :

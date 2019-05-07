@@ -45,6 +45,7 @@ message EndOfRideResponse {
 }
 
 message EndConnectionRequest {
+	required int32 port = 1;
 }
 
 message CarToServ {
