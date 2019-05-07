@@ -98,9 +98,9 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 			
 			for port in carPort :
 				try :
-					threadedSocket[port] = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
+					self.threadedSocket[port] = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
 
-					server_thread = threading.Thread(target=threadedSocket.serve_forever)
+					server_thread = threading.Thread(target=self.threadedSocket[port].serve_forever)
 					server_thread.daemon = True
 					server_thread.start()
 
@@ -108,21 +108,16 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 					resp.connectionResponse.port = port
 					self.wfile.write(resp.SerializeToString())
 
-					data = self.request.recv(1024)
-					msg = synchro_pb2.CarToServ.FromString(data);
-
-					if msg.HasField("endConnectionRequest") :
-						
-
 					break;
+		
 				except Exception as e :
 					print(e)
 
 		elif msg.HasField("endConnectionRequest") :
 			print("\nshutdown socket")
 			port = msg.endConnectionRequest.port
-			threadedSocket[port].server_close()
-			threadedSocket[port].shutdown()
+			self.threadedSocket[port].server_close()
+			self.threadedSocket[port].shutdown()
 
 
 
