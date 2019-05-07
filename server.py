@@ -87,38 +87,42 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 		# self.rfile is a file-like object created by the handler;
 		# we can now use e.g. readline() instead of raw recv() calls
 
-		data = self.request.recv(1024)
+		while True :
 
-		msg = synchro_pb2.CarToServ.FromString(data);
+			data = self.request.recv(1024)
 
-		print("Msg : '{}'".format(data));
+			msg = synchro_pb2.CarToServ.FromString(data);
 
-		if msg.HasField("connectionRequest") :
-			print(" Connection Request !!!")
-			
-			for port in carPort :
-				try :
-					threadedSocket = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
+			print("Msg : '{}'".format(data));
 
-					server_thread = threading.Thread(target=threadedSocket.serve_forever)
-					server_thread.daemon = True
-					server_thread.start()
+			if msg.HasField("connectionRequest") :
+				print(" Connection Request !!!")
+				
+				for port in carPort :
+					try :
+						threadedSocket = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
 
-					resp = synchro_pb2.ServToCar()
-					resp.connectionResponse.port = port
-					self.wfile.write(resp.SerializeToString())
+						server_thread = threading.Thread(target=threadedSocket.serve_forever)
+						server_thread.daemon = True
+						server_thread.start()
 
-					data = self.request.recv(1024)
-					msg = synchro_pb2.CarToServ.FromString(data);
+						resp = synchro_pb2.ServToCar()
+						resp.connectionResponse.port = port
+						self.wfile.write(resp.SerializeToString())
 
-					if msg.HasField("endConnectionRequest") :
-						print("\nshutdown socket")
-						threadedSocket.server_close()
-						threadedSocket.shutdown()
+						data = self.request.recv(1024)
+						msg = synchro_pb2.CarToServ.FromString(data);
 
-					break;
-				except Exception as e :
-					print(e)
+						if msg.HasField("endConnectionRequest") :
+							print("\nshutdown socket")
+							threadedSocket.server_close()
+							threadedSocket.shutdown()
+
+						break;
+					except Exception as e :
+						print(e)
+
+			time.sleep(1)
 
 
 if __name__ == "__main__":
