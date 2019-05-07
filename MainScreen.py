@@ -109,7 +109,7 @@ class MainScreen(Screen):
 
         # Clock update
         Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
-        Clock.schedule_interval(self.update, 1.0)
+        Clock.schedule_interval(self.update, 1.001)
 
         return self.layout
 
