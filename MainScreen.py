@@ -19,6 +19,7 @@ from mysql.connector import connect
 from math import sin
 from threading import Thread
 from queue import Queue
+from socket import gethostbyname, create_connection
 
 
 class MainScreen(Screen):
@@ -57,7 +58,8 @@ class MainScreen(Screen):
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
         self.logo = Image(source="ISEN-Brest_horizontal.jpg")
-        self.graphpuissance = Button(text="Graphique temps réel", font_size="20sp", markup=True, on_release=self.switchtograph)
+        self.wifi = Label(font_size="30sp", markup=True)
+        self.graphpuissance = Button(text="Graphique", font_size="20sp", markup=True, on_release=self.switchtograph)
         self.labelpuissance = Label(text="[b]Puissance :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
         self.labelpuissance.bind(size=self.labelpuissance.setter('text_size'))
         self.puissance = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
@@ -81,6 +83,7 @@ class MainScreen(Screen):
 
         # Widget
         self.toolbarlogograph.add_widget(self.logo)
+        self.toolbarlogograph.add_widget(self.wifi)
         self.toolbarlogograph.add_widget(self.graphpuissance)
         self.toolbarpuissance.add_widget(self.labelpuissance)
         self.toolbarpuissance.add_widget(self.puissance)
@@ -240,8 +243,6 @@ class MainScreen(Screen):
         self.initialization()
 
     def initialization(self):
-        
-
         curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(self.badgeId))
         res = curs.fetchone()
@@ -320,6 +321,7 @@ class MainScreen(Screen):
 
     def update(self, dt):
         self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
+        self.wifi.text = self.is_connected()[1]
 
         if self.rideId > 0 :
 
@@ -350,3 +352,13 @@ class MainScreen(Screen):
 
         curs.close()
         self.mydb.commit()
+
+
+    def is_connected(self):
+        try:
+            host = gethostbyname("google.com")
+            create_connection((host, 80), 2)
+            return True, "[b][color=#10b200]WIFI ON[/color][/b]"
+        except Exception as e:
+            return False, "[b][color=#cb0000][s]WIFI OFF[/s][/color][/b]"
+
