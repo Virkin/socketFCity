@@ -54,6 +54,10 @@ class MainScreen(Screen):
         self.map = MapView(zoom=16, lon=-4.5047, lat=48.3878, map_source="osm-fr")
         self.home = MapMarker(lon=-4.5047, lat=48.3878)
         self.map.add_marker(self.home)
+         with open('bornes-recharge.json') as json_file:
+             data = load(json_file)
+             for k, v in data.items():
+                 self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"]))
 
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)

@@ -1,0 +1,14 @@
+{
+    "ISEN-Brest": {
+        "lon": -4.4955,
+        "lat": 48.4070
+    },
+    "Gare SNCF": {
+        "lon": -4.4829,
+        "lat": 48.3872
+    },
+    "Parking port de commerce": {
+	"lon": -4.4841,
+	"lat": 48.3835
+   }
+}
