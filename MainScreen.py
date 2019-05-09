@@ -20,6 +20,7 @@ from math import sin
 from threading import Thread
 from queue import Queue
 from socket import gethostbyname, create_connection
+from json import load
 
 
 class MainScreen(Screen):
@@ -54,7 +55,7 @@ class MainScreen(Screen):
         self.map = MapView(zoom=16, lon=-4.5047, lat=48.3878, map_source="osm-fr")
         self.home = MapMarker(lon=-4.5047, lat=48.3878)
         self.map.add_marker(self.home)
-         with open('bornes-recharge.json') as json_file:
+        with open('bornes-recharge.json') as json_file:
              data = load(json_file)
              for k, v in data.items():
                  self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"]))
