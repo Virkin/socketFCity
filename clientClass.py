@@ -143,8 +143,7 @@ class ClientSocket :
             raise(e)
 
         data = synchro_pb2.CarToServ()
-        data.endConnectionRequest.port = self.port
-        data.endConnectionRequest.Clear()
+        data.endConnectionRequest.port = self.PORT
 
         try :
             self.fSock.send(data.SerializeToString())
