@@ -1,14 +1,62 @@
 {
-    "ISEN-Brest": {
-        "lon": -4.4955,
-        "lat": 48.4070
-    },
-    "Gare SNCF": {
-        "lon": -4.4829,
-        "lat": 48.3872
-    },
-    "Parking port de commerce": {
-	"lon": -4.4841,
-	"lat": 48.3835
-   }
+	"ISEN-Brest": {
+		"lon": -4.4955,
+		"lat": 48.4070
+	},
+	"Gare SNCF": {
+		"lon": -4.4829,
+		"lat": 48.3872
+	},
+	"Parking port de commerce": {
+		"lon": -4.4841,
+		"lat": 48.3835
+	},
+	"Parking Oceanopolis": {
+		"lon": -4.4352,
+		"lat": 48.3892
+	},
+	"Parking Capucins": {
+		"lon": -4.4998,
+		"lat": 48.3896
+	},
+	"Parking Arena": {
+		"lon": -4.5224,
+		"lat": 48.3877
+	},
+	"Parking Espace Jaures": {
+		"lon": -4.4791,
+		"lat": 48.3934
+	},
+	"Parc Expo Penfeld": {
+		"lon": -4.5285,
+		"lat": 48.4108
+	},
+	"LIDL Pen Ar C'hleuz": {
+		"lon": -4.4768,
+		"lat": 48.4151
+	},
+	"Parking Castorama": {
+		"lon": -4.4741,
+		"lat": 48.4246
+	},
+	"Parking BUT": {
+		"lon": -4.4722,
+		"lat": 48.4254
+	},
+	"Parking Porte de Gouesnou": {
+		"lon": -4.4663,
+		"lat": 48.4313
+	},
+	"Terminus Tram Guipavas": {
+		"lon": -4.4437,
+		"lat": 48.4187
+	},
+	"Leroy Merlin Guipavas": {
+		"lon": -4.4450,
+		"lat": 48.4178
+	},
+	"Terminus Tram Montbarey": {
+		"lon": -4.5438,
+		"lat": 48.3780
+	}
 }
