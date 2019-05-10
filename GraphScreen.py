@@ -27,6 +27,9 @@ class GraphScreen(Screen):
         self.manager.current = "main"
 
     def build(self):
+        self.min = 0
+        self.max = 1
+
         self.graph = Graph(
             xlabel='Secondes écoulées',
             ylabel='Puissance (W)',
@@ -43,8 +46,8 @@ class GraphScreen(Screen):
             y_grid=True,
             xmin=0,
             xmax=1,
-            ymin=0,
-            ymax=1)
+            ymin=self.min,
+            ymax=self.max)
         self.index = 0
         self.plot = MeshLinePlot(color=[1, 0, 0, 1])
         self.graph.add_plot(self.plot)
@@ -63,8 +66,24 @@ class GraphScreen(Screen):
             if self.switch.active:
                 if len(self.plot.points) > 60:
                     self.graph.xmin = self.graph.xmax - 60
+
+                    i = len(self.plot.points) - 60
+
+                    lastminMin = self.plot.points[i-1]
+                    lastminMax = self.plot.points[i-1]
+                
+                    for i in range(i,i+60) :
+                        if self.plot.points[i] < lastminMin :
+                            lastminMin = self.plot.points[i]
+                        elif self.plot.points[i] > lastminMax :
+                            lastminMax = self.plot.points[i]
+
+                    self.graph.ymin = lastminMin - self.offset
+                    self.graph.ymax = lastminMax + self.offset
             else:
                 self.graph.xmin = 0
+                self.graph.ymin = self.min
+                self.graph.ymax = self.max
 
             #if len(self.plot.points) > 60:
             #    self.graph.xmin += 1
@@ -80,8 +99,8 @@ class GraphScreen(Screen):
         number = self.q.get()
 
         if number > self.graph.ymax:
-            self.graph.ymax = number + self.offset
+            self.max = number + self.offset
         elif number < self.graph.ymin or self.graph.ymin == 0:
-            self.graph.ymin = number - self.offset
+            self.min = number - self.offset
 
         return number

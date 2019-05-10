@@ -19,6 +19,8 @@ from mysql.connector import connect
 from math import sin
 from threading import Thread
 from queue import Queue
+from socket import gethostbyname, create_connection
+from json import load
 
 
 class MainScreen(Screen):
@@ -53,11 +55,16 @@ class MainScreen(Screen):
         self.map = MapView(zoom=16, lon=-4.5047, lat=48.3878, map_source="osm-fr")
         self.home = MapMarker(lon=-4.5047, lat=48.3878)
         self.map.add_marker(self.home)
+        with open('bornes-recharge.json') as json_file:
+             data = load(json_file)
+             for k, v in data.items():
+                 self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"], source="img/charging-station.png"))
 
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
-        self.logo = Image(source="ISEN-Brest_horizontal.jpg")
-        self.graphpuissance = Button(text="Graphique temps réel", font_size="20sp", markup=True, on_release=self.switchtograph)
+        self.battery = Image(source="img/battery-full.png")
+        self.wifi = Image(source="")
+        self.graphpuissance = Button(text="Graphique", font_size="20sp", markup=True, on_release=self.switchtograph)
         self.labelpuissance = Label(text="[b]Puissance :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
         self.labelpuissance.bind(size=self.labelpuissance.setter('text_size'))
         self.puissance = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
@@ -80,7 +87,8 @@ class MainScreen(Screen):
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
 
         # Widget
-        self.toolbarlogograph.add_widget(self.logo)
+        self.toolbarlogograph.add_widget(self.battery)
+        self.toolbarlogograph.add_widget(self.wifi)
         self.toolbarlogograph.add_widget(self.graphpuissance)
         self.toolbarpuissance.add_widget(self.labelpuissance)
         self.toolbarpuissance.add_widget(self.puissance)
@@ -109,7 +117,7 @@ class MainScreen(Screen):
 
         # Clock update
         Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
-        Clock.schedule_interval(self.update, 1.0)
+        Clock.schedule_interval(self.update, 1)
 
         return self.layout
 
@@ -122,7 +130,7 @@ class MainScreen(Screen):
         )
 
         self.rideId = 0
-        self.voltageVal = 240
+        self.voltageVal = 220
         self.t = 0
 
         self.cltSock = ClientSocket()
@@ -240,8 +248,6 @@ class MainScreen(Screen):
         self.initialization()
 
     def initialization(self):
-        
-
         curs = self.mydb.cursor()
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(self.badgeId))
         res = curs.fetchone()
@@ -319,7 +325,14 @@ class MainScreen(Screen):
             self.home.lat = self.map.lat
 
     def update(self, dt):
+        self.maxVoltage = 220
+
         self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
+    
+        if self.is_connected() :
+            self.wifi.source = "img/wifi-on.png"
+        else :
+            self.wifi.source = "img/wifi-off.png"
 
         if self.rideId > 0 :
 
@@ -329,6 +342,17 @@ class MainScreen(Screen):
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
             self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
 
+            if self.voltageVal < self.maxVoltage/8 :
+                self.battery.source = "img/battery-empty.png"
+            elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
+                self.battery.source = "img/battery-quarter.png"
+            elif self.voltageVal >= 3*self.maxVoltage/8 and self.voltageVal < 5*self.maxVoltage/8 :
+                self.battery.source = "img/battery-half.png"
+            elif self.voltageVal >= 5*self.maxVoltage/8 and self.voltageVal < 7*self.maxVoltage/8 : 
+                self.battery.source = "img/battery-three-quarters.png"
+            else :
+                self.battery.source = "img/battery-full.png"
+                
             self.puiss = self.voltageVal*self.intensityVal
             self.q.put(self.puiss)
             self.puissance.text = " {} W".format(int(round(self.puiss)))
@@ -346,7 +370,17 @@ class MainScreen(Screen):
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,3,self.intensityVal,now.strftime('%Y-%m-%d %H:%M:%S')))
 
-        self.voltageVal = round(self.voltageVal-0.04,2)
+        self.voltageVal = round(abs(self.voltageVal),2)
 
         curs.close()
         self.mydb.commit()
+
+
+    def is_connected(self):
+        try:
+            host = gethostbyname("google.com")
+            create_connection((host, 80), 2)
+            return True
+        except Exception as e:
+            return False
+
