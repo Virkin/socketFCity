@@ -27,7 +27,7 @@ stock.close()"""
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 
-	protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "root", "root", "fcity")
+	protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "fcity", "fcity29217!", "fcity2")
 
 	def recv_message(self, connection,sz):
 	    data = list()
