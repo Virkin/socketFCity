@@ -27,6 +27,9 @@ class GraphScreen(Screen):
         self.manager.current = "main"
 
     def build(self):
+        self.min = 0
+        self.max = 1
+
         self.graph = Graph(
             xlabel='Secondes écoulées',
             ylabel='Puissance (W)',
@@ -43,8 +46,8 @@ class GraphScreen(Screen):
             y_grid=True,
             xmin=0,
             xmax=1,
-            ymin=0,
-            ymax=1)
+            ymin=self.min,
+            ymax=self.max)
         self.index = 0
         self.plot = MeshLinePlot(color=[1, 0, 0, 1])
         self.graph.add_plot(self.plot)
@@ -64,7 +67,7 @@ class GraphScreen(Screen):
                 if len(self.plot.points) > 60:
                     self.graph.xmin = self.graph.xmax - 60
 
-                    i = len(self.plot) - 60
+                    i = len(self.plot.points) - 60
 
                     lastminMin = self.plot.points[i-1]
                     lastminMax = self.plot.points[i-1]

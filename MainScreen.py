@@ -58,7 +58,7 @@ class MainScreen(Screen):
         with open('bornes-recharge.json') as json_file:
              data = load(json_file)
              for k, v in data.items():
-                 self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"]))
+                 self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"], source="img/charging-station.png"))
 
         # Label
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
