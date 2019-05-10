@@ -78,8 +78,8 @@ class GraphScreen(Screen):
                         elif self.plot.points[i] > lastminMax :
                             lastminMax = self.plot.points[i]
 
-                    self.graph.ymin = lastminMin
-                    self.graph.ymax = lastminMax
+                    self.graph.ymin = lastminMin - self.offset
+                    self.graph.ymax = lastminMax + self.offset
             else:
                 self.graph.xmin = 0
                 self.graph.ymin = self.min
