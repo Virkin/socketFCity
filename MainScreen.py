@@ -364,11 +364,11 @@ class MainScreen(Screen):
         self.intensityVal = round(self.speedVal/10,2)
 
         curs = self.mydb.cursor()
-        now = datetime.now()
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,1,self.speedVal,now.strftime('%Y-%m-%d %H:%M:%S')))
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,2,self.voltageVal,now.strftime('%Y-%m-%d %H:%M:%S')))
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId,3,self.intensityVal,now.strftime('%Y-%m-%d %H:%M:%S')))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 1, self.speedVal, now))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.voltageVal, now))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.intensityVal, now))
 
         self.voltageVal = round(abs(self.voltageVal),2)
 
