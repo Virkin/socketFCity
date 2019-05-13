@@ -21,6 +21,7 @@ from threading import Thread
 from queue import Queue
 from socket import gethostbyname, create_connection
 from json import load
+from serial import Serial
 
 
 class MainScreen(Screen):
@@ -118,6 +119,9 @@ class MainScreen(Screen):
         # Clock update
         Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
         Clock.schedule_interval(self.update, 1)
+
+        # Serial connection to data generator
+        self.serial0 = Serial("/dev/serial0", baudrate=9600, timeout=0.1)
 
         return self.layout
 
@@ -337,6 +341,7 @@ class MainScreen(Screen):
         if self.rideId > 0 :
 
             self.insertFakeData()
+            self.get_data()
 
             self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
@@ -375,6 +380,15 @@ class MainScreen(Screen):
         curs.close()
         self.mydb.commit()
 
+    def get_data(self):
+        if self.stop.text == "Fin (Parking ISEN)":
+            while True:
+                if self.serial0.read().decode("utf-8") == "$":
+                    rcv = str(self.serial0.readline().decode("utf-8"))
+                    self.home.lon, self.home.lat = rcv.split(",")
+                    self.map.center_on(self.home.lat, self.home.lon)
+                    print(self.home.lon, self.home.lat)
+                    break
 
     def is_connected(self):
         try:
