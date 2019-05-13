@@ -166,31 +166,7 @@ class ProtobufProcessing() :
 		
 		self.mydb.commit()
 
-	def insertFakeData(self) :
-		curs = self.mydb.cursor()
-		
-		now = datetime.datetime.now()
-
-		curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
-
-		voltage = 240
-		for j in range(3600) : 
-			speed = round(random.uniform(20,30)*(math.sin(j*0.01)+1),2)
-			intensity = round(speed/10,2)
-
-			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,1,speed,now.strftime('%Y-%m-%d %H:%M:%S')))
-			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,2,voltage,now.strftime('%Y-%m-%d %H:%M:%S')))
-			curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.currentRideId,3,intensity,now.strftime('%Y-%m-%d %H:%M:%S')))
-
-			now += datetime.timedelta(0,1)
-
-			voltage = round(voltage-0.04,2)
-
-		curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.currentRideId))
-		
-		curs.close()
-		self.mydb.commit()
-
+	
 
 	def setCurrentRide(self, rideId) :
 		self.currentRideId = rideId;
@@ -233,7 +209,7 @@ class ProtobufProcessing() :
 		mystr = "["
 
 		for row in result :
-			mystr+="{{{},{},{}}},".format(row["measure_id"] ,row["value"], row["added_on"])
+			mystr+="{{{},{},{}}},".format(row["measure_id"] ,row["value"], row["added_on"].timestamp())
 
 		mystr = mystr[:-1] + "]"
 
