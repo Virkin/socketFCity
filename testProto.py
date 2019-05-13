@@ -144,7 +144,7 @@ class ProtobufProcessing() :
 			elm = row.split(',')
 			#print("mId : {} / val : {} / date : {}\n".format(*elm)) # Insert request instead !
 			#print("INSERT INTO data VALUES(NULL,{},{},{},{})".format(self.currentRideId, elm[0], elm[1], datetime.datetime.fromtimestamp(int(elm[2])).strftime('%Y-%m-%d %H:%M:%S')))
-			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},'{}')".format(self.currentRideId, elm[0], elm[1], datetime.datetime.fromtimestamp(int(elm[2])).strftime('%Y-%m-%d %H:%M:%S')))
+			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},'{}')".format(self.currentRideId, elm[0], elm[1], elm[2])
 
 		#self.insertData(msg.endOfRideRequest.element)
 
@@ -233,7 +233,7 @@ class ProtobufProcessing() :
 		mystr = "["
 
 		for row in result :
-			mystr+="{{{},{},{}}},".format(row["measure_id"] ,row["value"], int(row["added_on"].timestamp()))
+			mystr+="{{{},{},{}}},".format(row["measure_id"] ,row["value"], row["added_on"])
 
 		mystr = mystr[:-1] + "]"
 

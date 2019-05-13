@@ -11,6 +11,7 @@ from kivy.clock import Clock
 from kivy.garden.mapview import MapView, MapMarker
 from random import randint, uniform
 from time import strftime
+from time import time
 from evdev import InputDevice, categorize, ecodes, list_devices
 from re import match
 from datetime import datetime
@@ -369,7 +370,7 @@ class MainScreen(Screen):
         self.intensityVal = round(self.speedVal/10,2)
 
         curs = self.mydb.cursor()
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        now = round(time(),3)
 
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 1, self.speedVal, now))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.voltageVal, now))
