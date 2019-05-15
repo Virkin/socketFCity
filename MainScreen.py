@@ -1,3 +1,8 @@
+#!/usr/bin/python3
+
+# Classe MainSreen qui controle l'ecran principal de l'application
+# Elle est compose de deux parties distinctes : les donnees a gauche et la carte a droite
+
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
@@ -28,6 +33,7 @@ from os import system
 
 class MainScreen(Screen):
     def __init__(self, q, **kwargs):
+        """ initilisation de l'ecran """
         super(MainScreen, self).__init__(**kwargs)
         self.layoutmain = RelativeLayout()
         self.layoutmain.add_widget(self.build())
@@ -36,11 +42,13 @@ class MainScreen(Screen):
         self.q = q
 
     def switchtograph(self, *args):
+        """ changement vers l'ecran graphique  """
         self.manager.transition.direction = "left"
         self.manager.current = "graph"
 
     def build(self):
-        # Layout
+        """ construction de l'interface de l'ecran principal """
+        # definition des zones de l'ecran
         self.layout = BoxLayout(orientation="horizontal")
         self.toolbar = BoxLayout(orientation="vertical")
         self.toolbarlogograph = BoxLayout(orientation="horizontal")
@@ -50,24 +58,28 @@ class MainScreen(Screen):
         self.toolbareclairement1 = BoxLayout(orientation="horizontal")
         self.toolbareclairement2 = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
+        # ajout d'une image d'arriere plan sur la partie gauche
         with self.toolbar.canvas.before:
             Color(1, 1, 1, .5)
             self.rect = Rectangle(size=self.toolbar.size, pos=self.toolbar.pos, source="fcity.jpg")
         self.toolbar.bind(pos=self.update_rect, size=self.update_rect)
 
-        # Map
+        # construction de la carte sur la patie droite
         self.map = MapView(zoom=16, lon=-4.5047, lat=48.3878, map_source="osm-fr")
+        # ajout de la position actuelle de la voiture
         self.home = MapMarker(lon=-4.5047, lat=48.3878)
         self.map.add_marker(self.home)
+        # ajout des bornes de recharges provenant du ficher json
         with open('bornes-recharge.json') as json_file:
              data = load(json_file)
              for k, v in data.items():
                  self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"], source="img/charging-station.png"))
 
-        # Label
+        # creation des etiquettes contenenant les donnees de la voiture
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
         self.battery = Image(source="img/battery-full.png")
         self.wifi = Image(source="")
+        # bouton premettant de changer d'ecran vers le graphique
         self.graphpuissance = Button(text="Graphique", font_size="20sp", markup=True, on_release=self.switchtograph)
         self.labelpuissance = Label(text="[b]Puissance :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
         self.labelpuissance.bind(size=self.labelpuissance.setter('text_size'))
@@ -90,12 +102,12 @@ class MainScreen(Screen):
         self.eclairement2 = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
         self.eclairement2.bind(size=self.eclairement2.setter('text_size'))
 
-
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
+        # bouton de connexion avec le lecteur de badge ISEN
         self.connexion = Button(text="Connexion (Badge ISEN)", font_size="30sp", background_color=[0, .7, 0, 1], background_normal='', markup=True, on_release=self.read_card)
         self.alert = Label(text="[color=ff3333]Badge ISEN non reconnu ![/color]", font_size="30sp", markup=True)
 
-        # Widget
+        # ajout des modules a l'ecran principal
         self.toolbarlogograph.add_widget(self.battery)
         self.toolbarlogograph.add_widget(self.wifi)
         self.toolbarlogograph.add_widget(self.graphpuissance)
@@ -127,16 +139,17 @@ class MainScreen(Screen):
         self.maplayout.add_widget(self.lonlat)
         self.layout.add_widget(self.maplayout)
 
-        # Clock update
+        # creation de boucles de mises a jour
         Clock.schedule_interval(self.update_pos, 1.0 / 30.0)
         Clock.schedule_interval(self.update, 1)
 
-        # Serial connection to data generator
+        # connexion en uart avec le stm32 qui recupere les donnees de la voiture
         self.serial0 = Serial("/dev/serial0", baudrate=9600, timeout=0.1)
 
         return self.layout
 
     def on_start(self):
+        """ connexion a la base de donnees """
         self.mydb = connect(
             host="localhost",
             user="root",
@@ -152,6 +165,7 @@ class MainScreen(Screen):
 
         curs = self.mydb.cursor()
 
+        # recuperation du numero du trajet et du numero de badge de l'utilisateur
         curs.execute("SELECT r.id as rideId, u.badgeId as badgeId FROM ride as r JOIN users as u ON u.id=r.user_id WHERE r.start_date IS NOT NULL and r.end_date IS NULL and NOW() between r.start_reservation and r.end_reservation")
 
         res = curs.fetchone()
@@ -168,11 +182,14 @@ class MainScreen(Screen):
             self.initialization()
 
     def update_rect(self, instance, value):
+        """ mise a jour des images"""
         self.rect.pos = self.toolbar.pos
         self.rect.size = self.toolbar.size
 
     def read_card(self, dt):
+        """ lecture du numero du badge ISEN """
         devices = [InputDevice(path) for path in list_devices()]
+        # selection du bon peripherique
         for device in devices:
             if match(".*HID.*", device.name):
                 dev = InputDevice(device.path)
@@ -183,9 +200,8 @@ class MainScreen(Screen):
         except:
             return
 
-        # Provided as an example taken from my own keyboard attached to a Centos 6 box:
+        # conversion des codes du lecteur de badge en caracteres ASCII
         scancodes = {
-            # Scancode: ASCIICode
             0: None, 1: u'ESC', 2: u'1', 3: u'2', 4: u'3', 5: u'4', 6: u'5', 7: u'6', 8: u'7', 9: u'8',
             10: u'9', 11: u'0', 12: u'-', 13: u'=', 14: u'BKSP', 15: u'TAB', 16: u'q', 17: u'w', 18: u'e', 19: u'r',
             20: u't', 21: u'y', 22: u'u', 23: u'i', 24: u'o', 25: u'p', 26: u'[', 27: u']', 28: u'CRLF', 29: u'LCTRL',
@@ -203,14 +219,12 @@ class MainScreen(Screen):
             50: u'M', 51: u'<', 52: u'>', 53: u'?', 54: u'RSHFT', 56: u'LALT',  57: u' ', 100: u'RALT'
         }
 
-        #setup vars
         x = ''
         caps = False
 
-        #grab provides exclusive access to the device
+        # utilise le peripherique uniquement pour l'application 
         dev.grab()
 
-        #loop
         for event in dev.read_loop():
             if event.type == ecodes.EV_KEY:
                 data = categorize(event)  # Save the event temporarily to introspect it
@@ -227,6 +241,7 @@ class MainScreen(Screen):
                     if (data.scancode != 42) and (data.scancode != 54) and (data.scancode != 28):
                         x += key_lookup
                     if data.scancode == 28:
+                        # badge ISEN detecte
                         if match("\;[0-9]{16}\?", x):
                             break
                         else:
@@ -242,11 +257,13 @@ class MainScreen(Screen):
             pass
         self.toolbar.remove_widget(self.connexion)
 
+        # recuperation du numero dans une variable
         self.badgeId = x[11:-1]
 
         curs = self.mydb.cursor()
 
         try :
+            # verification du trajet de l'utilsateur avant le demarrage
             curs.execute("SELECT r.id from ride as r JOIN users as u on u.id=r.user_id WHERE u.badgeId={} and NOW() BETWEEN r.start_reservation and r.end_reservation".format(self.badgeId))
             res = curs.fetchone()
 
@@ -264,6 +281,7 @@ class MainScreen(Screen):
 
     def initialization(self):
         curs = self.mydb.cursor()
+        # recuperation du pseudo avec le numero de badge
         curs.execute("SELECT nickname FROM users WHERE badgeId={}".format(self.badgeId))
         res = curs.fetchone()
         nickname = res[0]
@@ -272,6 +290,7 @@ class MainScreen(Screen):
 
         now = datetime.now()
 
+        # mise a jour du debut du trajet
         curs.execute("UPDATE ride SET start_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
         curs.close()
         self.mydb.commit()
@@ -281,11 +300,14 @@ class MainScreen(Screen):
         else:
             stoptext = "Fin"
 
+        # affichage du pseudo de l'utilisateur sur l'ecran
         self.user = Label(text="[b]Utilisateur :[/b] {}".format(nickname), font_size="30sp", markup=True)
         self.layout_pause_stop = BoxLayout(orientation="horizontal")
+        # arret de l'application si l'utilisateur n'a pas reserve de trajet
         if self.rideId == -1:
             stoptext = "Pas de trajet réservé"
             self.stop = Button(text=stoptext, font_size="30sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.abort_ride)
+        # creation des boutons pause et fin de trajet si l'utilisateur a reserve un trajet
         else:
             stoptext = "Fin (Parking ISEN)"
             self.pause = Button(text="Pause", font_size="25sp", size_hint=(.6, 1), background_color=[1, .7, 0, 1], background_normal='', markup=True, on_release=self.pause_ride)
@@ -293,7 +315,7 @@ class MainScreen(Screen):
             self.stop = Button(text=stoptext, font_size="25sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
 
             self.dataQueue = Queue()
-
+            # demarrage du thread recuperant les donnees du vehicule
             self.receiveData = Thread(target=self.get_data, args=(self.dataQueue,))
             self.receiveData.start()
 
@@ -309,6 +331,7 @@ class MainScreen(Screen):
         system("sudo shutdown now")
 
     def stop_ride(self, dt):
+        """ affichage d'une barre de progression et transfert des donnees vers le serveur """
         self.maplayout.clear_widgets()
         self.toolbar.clear_widgets()
         self.layout.clear_widgets()
@@ -323,6 +346,7 @@ class MainScreen(Screen):
 
             curs = self.mydb.cursor()
             now = datetime.now()
+            # mise a jour de la date de fin de trajet
             curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
             curs.close()
             self.mydb.commit()
@@ -330,9 +354,11 @@ class MainScreen(Screen):
             self.endQ = Queue()
             t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
             t.start()
+            # mise a jour de la barre de progression
             self.progress_clock = Clock.schedule_interval(self.next, 0.1)
 
     def next(self, dt):
+        """ arret du systeme une fois les donnees transferees"""
         if not self.endQ.empty():
             self.progress.value = self.endQ.get()
 
@@ -341,6 +367,7 @@ class MainScreen(Screen):
             system("sudo shutdown now")
 
     def update_pos(self, dt):
+        """ mise a jour des coordonnees gps sur la carte """
         if self.rideId > 0 :
 
             self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} | [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
@@ -348,10 +375,12 @@ class MainScreen(Screen):
             self.home.lat = self.map.lat
 
     def update(self, dt):
+        """ mise a jour des informations et des donnees de l'ecran principal """
         self.maxVoltage = 220
 
         self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
-    
+
+        # affiche si le systeme est connecte au serveur
         if self.is_connected() :
             self.wifi.source = "img/wifi-on.png"
         else :
@@ -361,8 +390,10 @@ class MainScreen(Screen):
 
             if not self.dataQueue.empty() :
 
+                # recuperation des donnees
                 self.data = self.dataQueue.get()
                 self.insertFakeData()
+                # mise a jour de la position de la carte
                 self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
                 #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
@@ -373,6 +404,7 @@ class MainScreen(Screen):
                 self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
                 self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
 
+                # mise a jour du niveau de batterie
                 if self.voltageVal < self.maxVoltage/8 :
                     self.battery.source = "img/battery-empty.png"
                 elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
@@ -383,12 +415,14 @@ class MainScreen(Screen):
                     self.battery.source = "img/battery-three-quarters.png"
                 else :
                     self.battery.source = "img/battery-full.png"
-                    
+
+                # calcul de la puissance
                 self.puiss = self.voltageVal*self.intensityVal
                 self.q.put(self.puiss)
                 self.puissance.text = " {} W".format(int(round(self.puiss)))
 
     def insertFakeData(self) :
+        """ generation de donnees aleatoires """
         self.t += 1
 
         self.speedVal = round(uniform(20,30)*(sin(self.t*0.01)+1),2)
@@ -407,11 +441,13 @@ class MainScreen(Screen):
         self.mydb.commit()
 
     def get_data(self, dataQueue):
+        """ recuperation en uart des donnees de la voiture """
         data = {}
 
         if self.stop.text == "Fin (Parking ISEN)":
             while True:
                 if self.serial0.read().decode("utf-8") == "$":
+                    # lecture de la trame envoyee
                     trame = str(self.serial0.readline().decode("utf-8")).split(",")
 
                     print(trame)
@@ -420,7 +456,7 @@ class MainScreen(Screen):
                     heure = trame[0][1:].split(".")[0]
                     heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
 
-                    # latitude et longitude
+                    # conversion de la latitude et longitude en decimal
                     lat = dmsToDd(trame[1])
                     lon = dmsToDd(trame[2]) 
 
@@ -445,6 +481,7 @@ class MainScreen(Screen):
                     dataQueue.put(data)
 
     def is_connected(self):
+        """ verification de la connexion au serveur """
         try:
             host = gethostbyname("google.com")
             create_connection((host, 80), 2)
@@ -453,9 +490,11 @@ class MainScreen(Screen):
             return False
 
 def getDmsElm(dms) :
+        """ recuperation des degres, minutes, secondes des coordonnees gps """
         return int(dms.split('.')[0][:-2]), int(dms.split('.')[0][-2:]), float(dms[:-1].split('.')[1])/1000, dms[-1]
 
 def dmsToDd(dms) :
+    """ conversion des coordonnees gps dms en dd """
     d, m, s, c = getDmsElm(dms)
     dd = d + float(m)/60 + float(s)/3600
     
