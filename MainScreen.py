@@ -281,9 +281,16 @@ class MainScreen(Screen):
             self.pause = Button(text="Pause", font_size="25sp", size_hint=(.6, 1), background_color=[1, .7, 0, 1], background_normal='', markup=True, on_release=self.pause_ride)
             self.layout_pause_stop.add_widget(self.pause)
             self.stop = Button(text=stoptext, font_size="25sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
+
+            self.dataQueue = Queue()
+
+            self.receiveData = Thread(target=self.get_data, args=(self.dataQueue,))
+            self.receiveData.start()
+
         self.layout_pause_stop.add_widget(self.stop)
         self.toolbar.add_widget(self.user)
         self.toolbar.add_widget(self.layout_pause_stop)
+
 
     def abort_ride(self, dt):
         quit()
@@ -303,6 +310,8 @@ class MainScreen(Screen):
         self.popuplayout.add_widget(self.popup)
 
         if self.rideId != -1 :
+            self.dataQueue.put("End")
+
             curs = self.mydb.cursor()
             now = datetime.now()
             curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
@@ -342,7 +351,8 @@ class MainScreen(Screen):
         if self.rideId > 0 :
 
             self.insertFakeData()
-            self.get_data()
+        
+            self.moveMap()
 
             self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
@@ -363,6 +373,14 @@ class MainScreen(Screen):
             self.q.put(self.puiss)
             self.puissance.text = " {} W".format(int(round(self.puiss)))
 
+    def moveMap(self) :
+        if not self.dataQueue.empty():
+            self.data = self.dataQueue.get()
+            if self.data == "End" :
+                self.dataQueue.put(self.data)
+            else :
+                self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+
     def insertFakeData(self) :
         self.t += 1
 
@@ -381,15 +399,27 @@ class MainScreen(Screen):
         curs.close()
         self.mydb.commit()
 
-    def get_data(self):
+    def get_data(self, dataQueue):
+        data = {}
+
         if self.stop.text == "Fin (Parking ISEN)":
             while True:
                 if self.serial0.read().decode("utf-8") == "$":
                     rcv = str(self.serial0.readline().decode("utf-8"))
-                    self.home.lon, self.home.lat = rcv.split(",")
-                    self.map.center_on(self.home.lat, self.home.lon)
-                    print(self.home.lon, self.home.lat)
-                    break
+                    lon, lat = rcv.split(",")
+                    data["lon"] = lon
+                    data["lat"] = lat
+
+                    if not self.dataQueue.empty():
+                        elm = self.dataQueue.get()
+                        if elm == "End" :
+                            break
+                        else :
+                            self.dataQueue.put(elm)
+                    dataQueue.put(data)
+
+
+                    
 
     def is_connected(self):
         try:

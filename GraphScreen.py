@@ -69,14 +69,14 @@ class GraphScreen(Screen):
 
                     i = len(self.plot.points) - 60
 
-                    lastminMin = self.plot.points[i-1]
-                    lastminMax = self.plot.points[i-1]
+                    lastminMin = self.plot.points[i-1][1]
+                    lastminMax = self.plot.points[i-1][1]
                 
                     for i in range(i,i+60) :
-                        if self.plot.points[i] < lastminMin :
-                            lastminMin = self.plot.points[i]
-                        elif self.plot.points[i] > lastminMax :
-                            lastminMax = self.plot.points[i]
+                        if self.plot.points[i][1] < lastminMin :
+                            lastminMin = self.plot.points[i][1]
+                        elif self.plot.points[i][1] > lastminMax :
+                            lastminMax = self.plot.points[i][1]
 
                     self.graph.ymin = lastminMin - self.offset
                     self.graph.ymax = lastminMax + self.offset
@@ -98,9 +98,9 @@ class GraphScreen(Screen):
     def number(self):
         number = self.q.get()
 
-        if number > self.graph.ymax:
+        if number > self.max:
             self.max = number + self.offset
-        elif number < self.graph.ymin or self.graph.ymin == 0:
+        elif number < self.min or self.min == 0:
             self.min = number - self.offset
 
         return number
