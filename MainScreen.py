@@ -359,37 +359,34 @@ class MainScreen(Screen):
 
         if self.rideId > 0 :
 
-            self.data = self.dataQueue.get()
-            self.insertFakeData()
-            self.moveMap()
+            if not self.dataQueue.empty() :
 
-            #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
-            self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
-            self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
-            #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
-            self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
-            self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
+                self.data = self.dataQueue.get()
+                self.insertFakeData()
+                self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
-            if self.voltageVal < self.maxVoltage/8 :
-                self.battery.source = "img/battery-empty.png"
-            elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
-                self.battery.source = "img/battery-quarter.png"
-            elif self.voltageVal >= 3*self.maxVoltage/8 and self.voltageVal < 5*self.maxVoltage/8 :
-                self.battery.source = "img/battery-half.png"
-            elif self.voltageVal >= 5*self.maxVoltage/8 and self.voltageVal < 7*self.maxVoltage/8 : 
-                self.battery.source = "img/battery-three-quarters.png"
-            else :
-                self.battery.source = "img/battery-full.png"
-                
-            self.puiss = self.voltageVal*self.intensityVal
-            self.q.put(self.puiss)
-            self.puissance.text = " {} W".format(int(round(self.puiss)))
+                #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
+                self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
+                #self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
+                self.acceleration.text = " {} g".format(float(self.data["acc"]))
+                #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
+                self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
+                self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
 
-    def moveMap(self) :
-        #if not self.dataQueue.empty():
-            #self.data = self.dataQueue.get()
-            #print(self.data)
-        self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+                if self.voltageVal < self.maxVoltage/8 :
+                    self.battery.source = "img/battery-empty.png"
+                elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
+                    self.battery.source = "img/battery-quarter.png"
+                elif self.voltageVal >= 3*self.maxVoltage/8 and self.voltageVal < 5*self.maxVoltage/8 :
+                    self.battery.source = "img/battery-half.png"
+                elif self.voltageVal >= 5*self.maxVoltage/8 and self.voltageVal < 7*self.maxVoltage/8 : 
+                    self.battery.source = "img/battery-three-quarters.png"
+                else :
+                    self.battery.source = "img/battery-full.png"
+                    
+                self.puiss = self.voltageVal*self.intensityVal
+                self.q.put(self.puiss)
+                self.puissance.text = " {} W".format(int(round(self.puiss)))
 
     def insertFakeData(self) :
         self.t += 1
@@ -417,30 +414,33 @@ class MainScreen(Screen):
                 if self.serial0.read().decode("utf-8") == "$":
                     trame = str(self.serial0.readline().decode("utf-8")).split(",")
 
+                    print(trame)
+
                     # heure
                     heure = trame[0][1:].split(".")[0]
                     heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
-                    # latitude
-                    latitude = int(float(trame[1][:-1]) / 100) + ((float(trame[1][:-1]) % 100) / 60)
-                    if trame[1][-1:] == "S":
-                        latitude = -latitude
-                    # longitude
-                    longitude = int(float(trame[2][:-1]) / 100) + ((float(trame[2][:-1]) % 100) / 60)
-                    if trame[2][-1:] == "W":
-                        longitude = -longitude
+
+                    # latitude et longitude
+                    lat = dmsToDd(trame[1])
+                    lon = dmsToDd(trame[2]) 
+
                     # vitesse
                     vitesse = trame[3]
-                    # panneau 1
+
+                    # eclairement panneau 1 et 2
                     eclairement_1 = trame[4]
-                    # panneau 2
                     eclairement_2 = trame[5]
 
+                    # acceleration
+                    acceleration = trame[6]
+
                     data["heu"] = heure
-                    data["lat"] = latitude
-                    data["lon"] = longitude
+                    data["lat"] = lat
+                    data["lon"] = lon
                     data["vit"] = vitesse
                     data["pn1"] = eclairement_1
                     data["pn2"] = eclairement_2
+                    data["acc"] = acceleration
 
                     dataQueue.put(data)
 
@@ -451,4 +451,15 @@ class MainScreen(Screen):
             return True
         except Exception as e:
             return False
+
+def getDmsElm(dms) :
+        return int(dms.split('.')[0][:-2]), int(dms.split('.')[0][-2:]), float(dms[:-1].split('.')[1])/1000, dms[-1]
+
+def dmsToDd(dms) :
+    d, m, s, c = getDmsElm(dms)
+    dd = d + float(m)/60 + float(s)/3600
+    
+    if c=="S" or c=="W" : dd = -dd
+
+    return dd
 
