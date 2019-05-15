@@ -23,6 +23,7 @@ from queue import Queue
 from socket import gethostbyname, create_connection
 from json import load
 from serial import Serial
+from os import system
 
 
 class MainScreen(Screen):
@@ -321,7 +322,7 @@ class MainScreen(Screen):
             self.endQ = Queue()
             t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
             t.start()
-            self.progress_clock = Clock.schedule_interval(self.next, 1)
+            self.progress_clock = Clock.schedule_interval(self.next, 0.1)
 
     def next(self, dt):
         if not self.endQ.empty():
@@ -329,7 +330,7 @@ class MainScreen(Screen):
 
         if self.progress.value == 4 or self.rideId == -1:
             self.progress_clock.cancel()
-            quit()
+            system("sudo shutdown now")
 
     def update_pos(self, dt):
         if self.rideId > 0 :

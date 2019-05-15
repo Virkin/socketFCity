@@ -138,6 +138,7 @@ class ClientSocket :
                 self.sock.close()
                 self.progress +=1
                 endQ.put(self.progress)
+                print("progress 4 !!!")
 
         except Exception as e:
             raise(e)
