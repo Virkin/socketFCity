@@ -47,7 +47,8 @@ class MainScreen(Screen):
         self.toolbarpuissance = BoxLayout(orientation="horizontal")
         self.toolbarvitesse = BoxLayout(orientation="horizontal")
         self.toolbaracceleration = BoxLayout(orientation="horizontal")
-        self.toolbareclairement = BoxLayout(orientation="horizontal")
+        self.toolbareclairement1 = BoxLayout(orientation="horizontal")
+        self.toolbareclairement2 = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
         with self.toolbar.canvas.before:
             Color(1, 1, 1, .5)
@@ -80,10 +81,15 @@ class MainScreen(Screen):
         self.labelacceleration.bind(size=self.labelacceleration.setter('text_size'))
         self.acceleration = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
         self.acceleration.bind(size=self.acceleration.setter('text_size'))
-        self.labeleclairement = Label(text="[b]Eclairement :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
-        self.labeleclairement.bind(size=self.labeleclairement.setter('text_size'))
-        self.eclairement = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
-        self.eclairement.bind(size=self.eclairement.setter('text_size'))
+        self.labeleclairement1 = Label(text="[b]Eclairement 1 :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labeleclairement1.bind(size=self.labeleclairement1.setter('text_size'))
+        self.eclairement1 = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.eclairement1.bind(size=self.eclairement1.setter('text_size'))
+        self.labeleclairement2 = Label(text="[b]Eclairement 2 :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labeleclairement2.bind(size=self.labeleclairement2.setter('text_size'))
+        self.eclairement2 = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.eclairement2.bind(size=self.eclairement2.setter('text_size'))
+
 
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
         self.connexion = Button(text="Connexion (Badge ISEN)", font_size="30sp", background_color=[0, .7, 0, 1], background_normal='', markup=True, on_release=self.read_card)
@@ -99,14 +105,17 @@ class MainScreen(Screen):
         self.toolbarvitesse.add_widget(self.vitesse)
         self.toolbaracceleration.add_widget(self.labelacceleration)
         self.toolbaracceleration.add_widget(self.acceleration)
-        self.toolbareclairement.add_widget(self.labeleclairement)
-        self.toolbareclairement.add_widget(self.eclairement)
+        self.toolbareclairement1.add_widget(self.labeleclairement1)
+        self.toolbareclairement1.add_widget(self.eclairement1)
+        self.toolbareclairement2.add_widget(self.labeleclairement2)
+        self.toolbareclairement2.add_widget(self.eclairement2)
         self.toolbar.add_widget(self.titre)
         self.toolbar.add_widget(self.toolbarlogograph)
         self.toolbar.add_widget(self.toolbarpuissance)
         self.toolbar.add_widget(self.toolbarvitesse)
         self.toolbar.add_widget(self.toolbaracceleration)
-        self.toolbar.add_widget(self.toolbareclairement)
+        self.toolbar.add_widget(self.toolbareclairement1)
+        self.toolbar.add_widget(self.toolbareclairement2)
         self.toolbar.add_widget(self.connexion)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
@@ -294,10 +303,10 @@ class MainScreen(Screen):
 
 
     def abort_ride(self, dt):
-        quit()
+        system("sudo shutdown now")
 
     def pause_ride(self, dt):
-        quit()
+        system("sudo shutdown now")
 
     def stop_ride(self, dt):
         self.maplayout.clear_widgets()
@@ -334,7 +343,7 @@ class MainScreen(Screen):
     def update_pos(self, dt):
         if self.rideId > 0 :
 
-            self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} |  [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
+            self.lonlat.text = "[color=ffffff][b]Longitude :[/b] {} | [b]Latitude :[/b] {}[/color]".format(round(self.map.lon, 4), round(self.map.lat, 4))
             self.home.lon = self.map.lon
             self.home.lat = self.map.lat
 
@@ -350,13 +359,16 @@ class MainScreen(Screen):
 
         if self.rideId > 0 :
 
+            self.data = self.dataQueue.get()
             self.insertFakeData()
-        
             self.moveMap()
 
-            self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
+            #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
+            self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
             self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
-            self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
+            #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
+            self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
+            self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
 
             if self.voltageVal < self.maxVoltage/8 :
                 self.battery.source = "img/battery-empty.png"
@@ -374,10 +386,10 @@ class MainScreen(Screen):
             self.puissance.text = " {} W".format(int(round(self.puiss)))
 
     def moveMap(self) :
-        if not self.dataQueue.empty():
-            self.data = self.dataQueue.get()
-            
-            self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+        #if not self.dataQueue.empty():
+            #self.data = self.dataQueue.get()
+            #print(self.data)
+        self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
     def insertFakeData(self) :
         self.t += 1
@@ -429,7 +441,7 @@ class MainScreen(Screen):
                     data["vit"] = vitesse
                     data["pn1"] = eclairement_1
                     data["pn2"] = eclairement_2
-                    
+
                     dataQueue.put(data)
 
     def is_connected(self):
