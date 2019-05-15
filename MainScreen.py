@@ -311,7 +311,6 @@ class MainScreen(Screen):
         self.popuplayout.add_widget(self.popup)
 
         if self.rideId != -1 :
-            self.dataQueue.put("End")
 
             curs = self.mydb.cursor()
             now = datetime.now()
@@ -377,10 +376,8 @@ class MainScreen(Screen):
     def moveMap(self) :
         if not self.dataQueue.empty():
             self.data = self.dataQueue.get()
-            if self.data == "End" :
-                self.dataQueue.put(self.data)
-            else :
-                self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+            
+            self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
     def insertFakeData(self) :
         self.t += 1
@@ -432,13 +429,7 @@ class MainScreen(Screen):
                     data["vit"] = vitesse
                     data["pn1"] = eclairement_1
                     data["pn2"] = eclairement_2
-
-                    if not self.dataQueue.empty():
-                        elm = self.dataQueue.get()
-                        if elm == "End" :
-                            break
-                        else :
-                            self.dataQueue.put(elm)
+                    
                     dataQueue.put(data)
 
     def is_connected(self):
