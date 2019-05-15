@@ -406,10 +406,32 @@ class MainScreen(Screen):
         if self.stop.text == "Fin (Parking ISEN)":
             while True:
                 if self.serial0.read().decode("utf-8") == "$":
-                    rcv = str(self.serial0.readline().decode("utf-8"))
-                    lon, lat = rcv.split(",")
-                    data["lon"] = lon
-                    data["lat"] = lat
+                    trame = str(self.serial0.readline().decode("utf-8")).split(",")
+
+                    # heure
+                    heure = trame[0][1:].split(".")[0]
+                    heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
+                    # latitude
+                    latitude = int(float(trame[1][:-1]) / 100) + ((float(trame[1][:-1]) % 100) / 60)
+                    if trame[1][-1:] == "S":
+                        latitude = -latitude
+                    # longitude
+                    longitude = int(float(trame[2][:-1]) / 100) + ((float(trame[2][:-1]) % 100) / 60)
+                    if trame[2][-1:] == "W":
+                        longitude = -longitude
+                    # vitesse
+                    vitesse = trame[3]
+                    # panneau 1
+                    eclairement_1 = trame[4]
+                    # panneau 2
+                    eclairement_2 = trame[5]
+
+                    data["heu"] = heure
+                    data["lat"] = latitude
+                    data["lon"] = longitude
+                    data["vit"] = vitesse
+                    data["pn1"] = eclairement_1
+                    data["pn2"] = eclairement_2
 
                     if not self.dataQueue.empty():
                         elm = self.dataQueue.get()
@@ -418,9 +440,6 @@ class MainScreen(Screen):
                         else :
                             self.dataQueue.put(elm)
                     dataQueue.put(data)
-
-
-                    
 
     def is_connected(self):
         try:
