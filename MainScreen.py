@@ -308,19 +308,20 @@ class MainScreen(Screen):
         if self.rideId == -1:
             stoptext = "Pas de trajet réservé"
             self.stop = Button(text=stoptext, font_size="30sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.abort_ride)
+            self.layout_pause_stop.add_widget(self.stop)
         # creation des boutons pause et fin de trajet si l'utilisateur a reserve un trajet
         else:
             stoptext = "Fin (Parking ISEN)"
+            self.stop = Button(text=stoptext, font_size="25sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
+            self.layout_pause_stop.add_widget(self.stop)
             self.pause = Button(text="Pause", font_size="25sp", size_hint=(.6, 1), background_color=[1, .7, 0, 1], background_normal='', markup=True, on_release=self.pause_ride)
             self.layout_pause_stop.add_widget(self.pause)
-            self.stop = Button(text=stoptext, font_size="25sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
 
             self.dataQueue = Queue()
             # demarrage du thread recuperant les donnees du vehicule
             self.receiveData = Thread(target=self.get_data, args=(self.dataQueue,))
             self.receiveData.start()
 
-        self.layout_pause_stop.add_widget(self.stop)
         self.toolbar.add_widget(self.user)
         self.toolbar.add_widget(self.layout_pause_stop)
 
@@ -333,30 +334,31 @@ class MainScreen(Screen):
 
     def stop_ride(self, dt):
         """ affichage d'une barre de progression et transfert des donnees vers le serveur """
-        self.maplayout.clear_widgets()
-        self.toolbar.clear_widgets()
-        self.layout.clear_widgets()
+        if self.is_connected():
+            self.maplayout.clear_widgets()
+            self.toolbar.clear_widgets()
+            self.layout.clear_widgets()
 
-        self.popuplayout = BoxLayout()
-        self.layout.add_widget(self.popuplayout)
-        self.progress = ProgressBar(max=4, value=0)
-        self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
-        self.popuplayout.add_widget(self.popup)
+            self.popuplayout = BoxLayout()
+            self.layout.add_widget(self.popuplayout)
+            self.progress = ProgressBar(max=4, value=0)
+            self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
+            self.popuplayout.add_widget(self.popup)
 
-        if self.rideId != -1 :
+            if self.rideId != -1 :
 
-            curs = self.mydb.cursor()
-            now = datetime.now()
-            # mise a jour de la date de fin de trajet
-            curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
-            curs.close()
-            self.mydb.commit()
+                curs = self.mydb.cursor()
+                now = datetime.now()
+                # mise a jour de la date de fin de trajet
+                curs.execute("UPDATE ride SET end_date = '{}' WHERE id = {}".format(now.strftime('%Y-%m-%d %H:%M:%S'), self.rideId))
+                curs.close()
+                self.mydb.commit()
 
-            self.endQ = Queue()
-            t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
-            t.start()
-            # mise a jour de la barre de progression
-            self.progress_clock = Clock.schedule_interval(self.next, 0.1)
+                self.endQ = Queue()
+                t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
+                t.start()
+                # mise a jour de la barre de progression
+                self.progress_clock = Clock.schedule_interval(self.next, 0.1)
 
     def next(self, dt):
         """ arret du systeme une fois les donnees transferees"""
@@ -384,8 +386,17 @@ class MainScreen(Screen):
         # affiche si le systeme est connecte au serveur
         if self.is_connected() :
             self.wifi.source = "img/wifi-on.png"
+            try:
+                self.stop.background_color = [1, 0, 0, 1]
+            except:
+                pass
         else :
             self.wifi.source = "img/wifi-off.png"
+            try:
+                self.stop.background_color = [0.7, 0, 0, 1]
+            except:
+                pass
+
 
         if self.rideId > 0 :
 
