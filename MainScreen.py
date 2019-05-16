@@ -65,15 +65,16 @@ class MainScreen(Screen):
         self.toolbar.bind(pos=self.update_rect, size=self.update_rect)
 
         # construction de la carte sur la patie droite
-        self.map = MapView(zoom=16, lon=-4.5047, lat=48.3878, map_source="osm-fr")
-        # ajout de la position actuelle de la voiture
-        self.home = MapMarker(lon=-4.5047, lat=48.3878)
-        self.map.add_marker(self.home)
+        self.map = MapView(zoom=16, lat=48.406970, lon=-4.495254, map_source="osm-fr")
         # ajout des bornes de recharges provenant du ficher json
         with open('bornes-recharge.json') as json_file:
              data = load(json_file)
              for k, v in data.items():
                  self.map.add_marker(MapMarker(lon=v["lon"], lat=v["lat"], source="img/charging-station.png"))
+        # ajout de la position actuelle de la voiture
+        self.home = MapMarker(lat=48.406970, lon=-4.495254)
+        self.map.add_marker(self.home)
+
 
         # creation des etiquettes contenenant les donnees de la voiture
         self.titre = Label(text="[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M")), font_size="30sp", markup=True)
@@ -144,7 +145,7 @@ class MainScreen(Screen):
         Clock.schedule_interval(self.update, 1)
 
         # connexion en uart avec le stm32 qui recupere les donnees de la voiture
-        self.serial0 = Serial("/dev/serial0", baudrate=9600, timeout=0.1)
+        self.serial0 = Serial("/dev/serial0", baudrate=9600, timeout=0.05)
 
         return self.layout
 
@@ -392,17 +393,23 @@ class MainScreen(Screen):
 
                 # recuperation des donnees
                 self.data = self.dataQueue.get()
-                self.insertFakeData()
+                #self.insertFakeData()
+                self.insertData()
+                print(self.data)
                 # mise a jour de la position de la carte
-                self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+                if "lat" in self.data and "lon" in self.data:
+                    self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
                 #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
-                self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
-                #self.acceleration.text = " {} g".format(round(uniform(0, 3), 2))
-                self.acceleration.text = " {} g".format(float(self.data["acc"]))
+                if "vit" in self.data:
+                    self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
+                self.acceleration.text = " {} g".format(round(uniform(0, 1), 2))
+                #self.acceleration.text = " {} g".format(float(self.data["acc"]))
                 #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
-                self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
-                self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
+                if "pn1" in self.data:
+                    self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
+                if "pn2" in self.data:
+                    self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
 
                 # mise a jour du niveau de batterie
                 if self.voltageVal < self.maxVoltage/8 :
@@ -421,8 +428,29 @@ class MainScreen(Screen):
                 self.q.put(self.puiss)
                 self.puissance.text = " {} W".format(int(round(self.puiss)))
 
+    def insertData(self):
+        """ insertion des donnees """
+        curs = self.mydb.cursor()
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
+        if "vit" in self.data:
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 1, self.data["vit"], now))
+
+        self.t += 1
+
+        self.speedVal = round(uniform(20,30)*(sin(self.t*0.01)+1),2)
+        self.intensityVal = round(self.speedVal/10,2)
+
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.voltageVal, now))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.intensityVal, now))
+
+        self.voltageVal = round(abs(self.voltageVal),2)
+
+        curs.close()
+        self.mydb.commit()
+
     def insertFakeData(self) :
-        """ generation de donnees aleatoires """
+        """ generation et insertion de donnees aleatoires """
         self.t += 1
 
         self.speedVal = round(uniform(20,30)*(sin(self.t*0.01)+1),2)
@@ -453,30 +481,37 @@ class MainScreen(Screen):
                     print(trame)
 
                     # heure
-                    heure = trame[0][1:].split(".")[0]
-                    heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
+                    if match("[0-9]+\.[0-9]+", trame[0]):
+                        heure = trame[0].split(".")[0]
+                        heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
+                        data["heu"] = heure
 
                     # conversion de la latitude et longitude en decimal
-                    lat = dmsToDd(trame[1])
-                    lon = dmsToDd(trame[2]) 
+                    if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
+                        lat = dmsToDd(trame[1])
+                        data["lat"] = lat
+                    if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
+                        lon = dmsToDd(trame[2])
+                        data["lon"] = lon
 
                     # vitesse
-                    vitesse = trame[3]
+                    if match("[0-9]+\.[0-9]+", trame[3]):
+                        vitesse = trame[3]
+                        data["vit"] = vitesse
 
                     # eclairement panneau 1 et 2
-                    eclairement_1 = trame[4]
-                    eclairement_2 = trame[5]
+                    if match("[0-9]+\.[0-9]+", trame[4]):
+                        eclairement_1 = trame[4]
+                        data["pn1"] = eclairement_1
+
+                    if match("[0-9]+\.[0-9]+", trame[5]):
+                        eclairement_2 = trame[5]
+                        data["pn2"] = eclairement_2
 
                     # acceleration
-                    acceleration = trame[6]
+                    #acceleration = trame[6]
 
-                    data["heu"] = heure
-                    data["lat"] = lat
-                    data["lon"] = lon
-                    data["vit"] = vitesse
-                    data["pn1"] = eclairement_1
-                    data["pn2"] = eclairement_2
-                    data["acc"] = acceleration
+                    #data["acc"] = acceleration
 
                     dataQueue.put(data)
 
@@ -490,8 +525,8 @@ class MainScreen(Screen):
             return False
 
 def getDmsElm(dms) :
-        """ recuperation des degres, minutes, secondes des coordonnees gps """
-        return int(dms.split('.')[0][:-2]), int(dms.split('.')[0][-2:]), float(dms[:-1].split('.')[1])/1000, dms[-1]
+    """ recuperation des degres, minutes, secondes des coordonnees gps """
+    return int(dms.split('.')[0][:-2]), int(dms.split('.')[0][-2:]), float(dms[:-1].split('.')[1])/1000, dms[-1]
 
 def dmsToDd(dms) :
     """ conversion des coordonnees gps dms en dd """
