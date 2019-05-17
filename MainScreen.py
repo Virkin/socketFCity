@@ -414,7 +414,7 @@ class MainScreen(Screen):
                 #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
                 if "vit" in self.data:
                     self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
-                self.acceleration.text = " {} g".format(round(uniform(0, 1), 2))
+                self.acceleration.text = " {} g".format(self.accelerationVal)
                 #self.acceleration.text = " {} g".format(float(self.data["acc"]))
                 #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
                 if "pn1" in self.data:
@@ -451,9 +451,18 @@ class MainScreen(Screen):
 
         self.speedVal = round(uniform(20,30)*(sin(self.t*0.01)+1),2)
         self.intensityVal = round(self.speedVal/10,2)
+        self.accelerationVal = round(uniform(0, 1), 2)
 
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.voltageVal, now))
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.intensityVal, now))
+
+        if "pn1" in self.data:
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 4, self.data["pn1"], now))
+
+        if "pn2" in self.data:
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 5, self.data["pn2"], now))
+
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.accelerationVal, now))
 
         self.voltageVal = round(abs(self.voltageVal),2)
 
