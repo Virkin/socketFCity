@@ -1,7 +1,7 @@
 import synchro_pb2
 import fcityDatabase_pb2
 import mysql.connector
-import datetime
+from datetime import datetime
 import random
 import time
 import math
@@ -134,6 +134,8 @@ class ProtobufProcessing() :
 		data = msg.endOfRideRequest.data
 		data = str(lzma.decompress(data))
 
+		self.currentRideId = msg.endOfRideRequest.id
+
 		curs.execute("UPDATE ride SET end_date='{}' WHERE id='{}'".format(msg.endOfRideRequest.endDate, msg.endOfRideRequest.id))
 
 		while data.find("{") != -1 :
@@ -143,8 +145,8 @@ class ProtobufProcessing() :
 			data = data[endPos+1:]
 			elm = row.split(',')
 			#print("mId : {} / val : {} / date : {}\n".format(*elm)) # Insert request instead !
-			#print("INSERT INTO data VALUES(NULL,{},{},{},{})".format(self.currentRideId, elm[0], elm[1], datetime.datetime.fromtimestamp(int(elm[2])).strftime('%Y-%m-%d %H:%M:%S')))
-			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},'{}')".format(self.currentRideId, elm[0], elm[1], elm[2]))
+			print("INSERT INTO data VALUES(NULL,{},{},{},{})".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(float(elm[2])).strftime('%Y-%m-%d %H:%M:%S.%f')))
+			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},'{}')".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(float(elm[2])).strftime('%Y-%m-%d %H:%M:%S.%f')))
 
 		#self.insertData(msg.endOfRideRequest.element)
 
@@ -233,7 +235,7 @@ class ProtobufProcessing() :
 	def startRide(self) :
 		msg = synchro_pb2.CarToServ()
 		msg.startOfRideRequest.id=self.currentRideId
-		msg.startOfRideRequest.startDate = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		msg.startOfRideRequest.startDate = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 		print(msg)
 		return msg.SerializeToString()

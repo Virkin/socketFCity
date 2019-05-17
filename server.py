@@ -27,8 +27,6 @@ stock.close()"""
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 
-	protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "fcity", "fcity29217!", "fcity2")
-
 	def recv_message(self, connection,sz):
 	    data = list()
 	    transferred_bytes= 0
@@ -45,6 +43,9 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 			try :
 		
 				bf = self.request.recv(4)
+
+				self.protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "fcity", "fcity29217!", "fcity2")
+				self.protobufProccess.resetDbConnection()
 				
 				if bf != b'' :
 					sz=struct.unpack(">L",bf)[0]
