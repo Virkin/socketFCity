@@ -139,20 +139,18 @@ class ClientSocket :
                 self.progress +=1
                 endQ.put(self.progress)
 
+        except Exception as e:
+            raise(e)
+
+    def closeSocket(self) :
+        try:
             data = synchro_pb2.CarToServ()
             data.endConnectionRequest.port = self.PORT
-
-            self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             self.fSock.send(data.SerializeToString())
             self.fSock.close()
 
             print("End client socket")
-
-            self.progress +=1
-            endQ.put(self.progress)
-
         except Exception as e:
             raise(e)
 
