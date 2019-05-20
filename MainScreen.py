@@ -498,46 +498,49 @@ class MainScreen(Screen):
 
         if self.stop.text == "Fin (Parking ISEN)":
             while True:
-                if self.serial0.read().decode("utf-8") == "$":
-                    # lecture de la trame envoyee
-                    trame = str(self.serial0.readline().decode("utf-8")).split(",")
+                try:
+                    if self.serial0.read().decode("utf-8") == "$":
+                        # lecture de la trame envoyee
+                        trame = str(self.serial0.readline().decode("utf-8")).split(",")
 
-                    print(trame)
+                        print(trame)
 
-                    # heure
-                    if match("[0-9]+\.[0-9]+", trame[0]):
-                        heure = trame[0].split(".")[0]
-                        heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
-                        data["heu"] = heure
+                        # heure
+                        #if match("[0-9]+\.[0-9]+", trame[0]):
+                        #    heure = trame[0].split(".")[0]
+                        #    heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
+                        #    data["heu"] = heure
 
-                    # conversion de la latitude et longitude en decimal
-                    if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
-                        lat = dmsToDd(trame[1])
-                        data["lat"] = lat
-                    if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
-                        lon = dmsToDd(trame[2])
-                        data["lon"] = lon
+                        # conversion de la latitude et longitude en decimal
+                        if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
+                            lat = dmsToDd(trame[1])
+                            data["lat"] = lat
+                        if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
+                            lon = dmsToDd(trame[2])
+                            data["lon"] = lon
 
-                    # vitesse
-                    if match("[0-9]+\.[0-9]+", trame[3]):
-                        vitesse = trame[3]
-                        data["vit"] = vitesse
+                        # vitesse
+                        if match("[0-9]+\.[0-9]+", trame[3]):
+                            vitesse = trame[3]
+                            data["vit"] = vitesse
 
-                    # eclairement panneau 1 et 2
-                    if match("[0-9]+\.[0-9]+", trame[4]):
-                        eclairement_1 = trame[4]
-                        data["pn1"] = eclairement_1
+                        # eclairement panneau 1 et 2
+                        if match("[0-9]+\.[0-9]+", trame[4]):
+                            eclairement_1 = trame[4]
+                            data["pn1"] = eclairement_1
 
-                    if match("[0-9]+\.[0-9]+", trame[5]):
-                        eclairement_2 = trame[5]
-                        data["pn2"] = eclairement_2
+                        if match("[0-9]+\.[0-9]+", trame[5]):
+                            eclairement_2 = trame[5]
+                            data["pn2"] = eclairement_2
 
-                    # acceleration
-                    #acceleration = trame[6]
+                        # acceleration
+                        #acceleration = trame[6]
 
-                    #data["acc"] = acceleration
+                        #data["acc"] = acceleration
 
-                    dataQueue.put(data)
+                        dataQueue.put(data)
+                except Exception as e:
+                    print(e)
 
     def is_connected(self):
         """ verification de la connexion au serveur """
