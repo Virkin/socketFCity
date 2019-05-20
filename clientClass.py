@@ -147,9 +147,13 @@ class ClientSocket :
         data.endConnectionRequest.port = self.PORT
 
         try :
+            self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
             self.fSock.send(data.SerializeToString())
+
+            self.fSock.close()
         except Exception as e:
             raise(e)
-        finally :
-            self.fSock.close()
+            
 
