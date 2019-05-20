@@ -307,7 +307,7 @@ class MainScreen(Screen):
         # arret de l'application si l'utilisateur n'a pas reserve de trajet
         if self.rideId == -1:
             stoptext = "Pas de trajet réservé"
-            self.stop = Button(text=stoptext, font_size="30sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.abort_ride)
+            self.stop = Button(text=stoptext, font_size="30sp", background_color=[1, 0, 0, 1], background_normal='', markup=True, on_release=self.stop_ride)
             self.layout_pause_stop.add_widget(self.stop)
         # creation des boutons pause et fin de trajet si l'utilisateur a reserve un trajet
         else:
@@ -345,6 +345,8 @@ class MainScreen(Screen):
             self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
             self.popuplayout.add_widget(self.popup)
 
+            self.endQ = Queue()
+
             if self.rideId != -1 :
 
                 curs = self.mydb.cursor()
@@ -354,11 +356,11 @@ class MainScreen(Screen):
                 curs.close()
                 self.mydb.commit()
 
-                self.endQ = Queue()
                 t = Thread(target=self.cltSock.endRide, args=(self.endQ,))
                 t.start()
                 # mise a jour de la barre de progression
-                self.progress_clock = Clock.schedule_interval(self.next, 0.1)
+
+            self.progress_clock = Clock.schedule_interval(self.next, 0.1)
 
     def next(self, dt):
         """ arret du systeme une fois les donnees transferees"""
