@@ -341,7 +341,7 @@ class MainScreen(Screen):
 
             self.popuplayout = BoxLayout()
             self.layout.add_widget(self.popuplayout)
-            self.progress = ProgressBar(max=4, value=0)
+            self.progress = ProgressBar(max=5, value=0)
             self.popup = Popup(title='Transfert des données vers le serveur', content=self.progress)
             self.popuplayout.add_widget(self.popup)
 
@@ -365,7 +365,7 @@ class MainScreen(Screen):
         if not self.endQ.empty():
             self.progress.value = self.endQ.get()
 
-        if self.progress.value == 4 or self.rideId == -1:
+        if self.progress.value == 5 or self.rideId == -1:
             self.progress_clock.cancel()
             system("sudo shutdown now")
 
