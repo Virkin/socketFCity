@@ -57,6 +57,7 @@ class MainScreen(Screen):
         self.toolbaracceleration = BoxLayout(orientation="horizontal")
         self.toolbareclairement1 = BoxLayout(orientation="horizontal")
         self.toolbareclairement2 = BoxLayout(orientation="horizontal")
+        self.toolbareclairement3 = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
         # ajout d'une image d'arriere plan sur la partie gauche
         with self.toolbar.canvas.before:
@@ -102,6 +103,11 @@ class MainScreen(Screen):
         self.labeleclairement2.bind(size=self.labeleclairement2.setter('text_size'))
         self.eclairement2 = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
         self.eclairement2.bind(size=self.eclairement2.setter('text_size'))
+        self.labeleclairement3 = Label(text="[b]Eclairement 3 :[/b]", font_size="30sp", markup=True, halign="right", valign="middle")
+        self.labeleclairement3.bind(size=self.labeleclairement3.setter('text_size'))
+        self.eclairement3 = Label(font_size="30sp", size_hint=(.8, 1), markup=True, halign="left", valign="middle")
+        self.eclairement3.bind(size=self.eclairement3.setter('text_size'))
+
 
         self.lonlat = Label(font_size="20sp", markup=True, pos_hint={'center_x': .5, 'center_y': .05})
         # bouton de connexion avec le lecteur de badge ISEN
@@ -122,6 +128,8 @@ class MainScreen(Screen):
         self.toolbareclairement1.add_widget(self.eclairement1)
         self.toolbareclairement2.add_widget(self.labeleclairement2)
         self.toolbareclairement2.add_widget(self.eclairement2)
+        self.toolbareclairement3.add_widget(self.labeleclairement3)
+        self.toolbareclairement3.add_widget(self.eclairement3)
         self.toolbar.add_widget(self.titre)
         self.toolbar.add_widget(self.toolbarlogograph)
         self.toolbar.add_widget(self.toolbarpuissance)
@@ -129,6 +137,7 @@ class MainScreen(Screen):
         self.toolbar.add_widget(self.toolbaracceleration)
         self.toolbar.add_widget(self.toolbareclairement1)
         self.toolbar.add_widget(self.toolbareclairement2)
+        self.toolbar.add_widget(self.toolbareclairement3)
         self.toolbar.add_widget(self.connexion)
         self.layout.add_widget(self.toolbar)
         self.maplayout.add_widget(self.map)
@@ -408,23 +417,21 @@ class MainScreen(Screen):
 
                 # recuperation des donnees
                 self.data = self.dataQueue.get()
-                #self.insertFakeData()
                 self.insertData()
                 print(self.data)
                 # mise a jour de la position de la carte
                 if "lat" in self.data and "lon" in self.data:
                     self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
-                #self.vitesse.text = " {} km/h".format(int(round(self.speedVal)))
                 if "vit" in self.data:
                     self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
                 self.acceleration.text = " {} g".format(self.accelerationVal)
-                #self.acceleration.text = " {} g".format(float(self.data["acc"]))
-                #self.eclairement.text = " {} lux".format(int(round(randint(500, 100000))))
                 if "pn1" in self.data:
                     self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
                 if "pn2" in self.data:
                     self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
+                if "pn3" in self.data:
+                    self.eclairement3.text = " {} lux".format(int(round(float(self.data["pn3"]))))
 
                 # mise a jour du niveau de batterie
                 if self.voltageVal < self.maxVoltage/8 :
@@ -466,7 +473,10 @@ class MainScreen(Screen):
         if "pn2" in self.data:
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 5, self.data["pn2"], now))
 
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.accelerationVal, now))
+        if "pn3" in self.data:
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.data["pn3"], now))
+
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 7, self.accelerationVal, now))
 
         self.voltageVal = round(abs(self.voltageVal-0.05),2)
 
@@ -524,7 +534,7 @@ class MainScreen(Screen):
                             vitesse = trame[3]
                             data["vit"] = vitesse
 
-                        # eclairement panneau 1 et 2
+                        # eclairement panneau 1, 2 et 3
                         if match("[0-9]+\.[0-9]+", trame[4]):
                             eclairement_1 = trame[4]
                             data["pn1"] = eclairement_1
@@ -533,8 +543,12 @@ class MainScreen(Screen):
                             eclairement_2 = trame[5]
                             data["pn2"] = eclairement_2
 
+                        if match("[0-9]+\.[0-9]+", trame[6]):
+                            eclairement_3 = trame[6]
+                            data["pn3"] = eclairement_3
+
                         # acceleration
-                        #acceleration = trame[6]
+                        #acceleration = trame[7]
 
                         #data["acc"] = acceleration
 

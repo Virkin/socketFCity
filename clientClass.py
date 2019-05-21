@@ -23,7 +23,8 @@ class ClientSocket :
 
     def __init__(self):
         self.HOST = "172.31.3.59"
-        self.PORT = 8080
+        self.PORT_CO = 8080
+        self.PORT_DECO = 8081
 
         self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
@@ -32,16 +33,17 @@ class ClientSocket :
         data = synchro_pb2.CarToServ()
         data.connectionRequest.Clear()
         # Create a socket (SOCK_STREAM means a TCP socket)
-        self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.coSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.coSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
             # Connect to server and send data
-            self.fSock.connect((self.HOST, self.PORT))
-            self.fSock.sendall(data.SerializeToString())
+            self.coSock.connect((self.HOST, self.PORT_CO))
+            self.coSock.sendall(data.SerializeToString())
 
             # Receive data from the server and shut down
-            recv = self.fSock.recv(1024)
+            recv = self.coSock.recv(1024)
+            self.coSock.close()
          
             msg = synchro_pb2.ServToCar.FromString(recv)
         except Exception as e:
@@ -50,15 +52,12 @@ class ClientSocket :
         print("Sent:     {}".format(data.SerializeToString()))
         print("Received: {}".format(msg.connectionResponse.port))
 
-        self.PORT = msg.connectionResponse.port
+        self.port = msg.connectionResponse.port
         
         
         # Create a socket (SOCK_STREAM means a TCP socket)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE,1)
-        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
-        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
-        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.progress = 0
 
@@ -71,7 +70,7 @@ class ClientSocket :
             # Connect to server and send data
             data = data.SerializeToString()
 
-            self.sock.connect((self.HOST, self.PORT))
+            self.sock.connect((self.HOST, self.port))
             s=struct.pack(">L",len(data))+data
             self.sock.send(s)
 
@@ -113,12 +112,6 @@ class ClientSocket :
 
     def endRide(self, endQ):
         try:    
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE,1)
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
-            self.sock.connect((self.HOST, self.PORT))
 
             msg = self.protobufProcess.generateDataMsg()
 
@@ -147,13 +140,15 @@ class ClientSocket :
     def closeSocket(self) :
         try:
             data = synchro_pb2.CarToServ()
-            data.endConnectionRequest.port = self.PORT
+            data.endConnectionRequest.port = self.port
 
-            #self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.decoSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.decoSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-            self.fSock.send(data.SerializeToString())
-            self.fSock.close()
+            self.decoSock.connect((self.HOST, self.PORT_DECO))
+
+            self.decoSock.send(data.SerializeToString())
+            self.decoSock.close()
 
             print("End client socket", file=stderr)
         except Exception as e:
