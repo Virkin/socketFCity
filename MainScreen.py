@@ -171,8 +171,6 @@ class MainScreen(Screen):
         self.voltageVal = 220
         self.t = 0
 
-        self.cltSock = ClientSocket()
-
         curs = self.mydb.cursor()
 
         # recuperation du numero du trajet et du numero de badge de l'utilisateur
@@ -183,10 +181,11 @@ class MainScreen(Screen):
         self.mydb.commit()
 
         if res == None :
+            self.cltSock = ClientSocket()
             self.cltSock.synchronize()
+            self.connect = True
         else :
             self.rideId = res[0]
-            self.cltSock.setCurrentRide(self.rideId)
             self.badgeId = res[1]
             self.toolbar.remove_widget(self.connexion)
             self.initialization()
@@ -379,8 +378,7 @@ class MainScreen(Screen):
         if self.progress.value == 4 or self.rideId == -1:
             self.progress_clock.cancel()
             self.cltSock.closeSocket()
-            #system("sudo shutdown now")
-            quit()
+            system("sudo shutdown now")
 
     def update_pos(self, dt):
         """ mise a jour des coordonnees gps sur la carte """
@@ -474,9 +472,9 @@ class MainScreen(Screen):
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 5, self.data["pn2"], now))
 
         if "pn3" in self.data:
-            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.data["pn3"], now))
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 7, self.data["pn3"], now))
 
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 7, self.accelerationVal, now))
+        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.accelerationVal, now))
 
         self.voltageVal = round(abs(self.voltageVal-0.05),2)
 
@@ -558,11 +556,19 @@ class MainScreen(Screen):
 
     def is_connected(self):
         """ verification de la connexion au serveur """
+
         try:
             host = gethostbyname("google.com")
             create_connection((host, 80), 2)
+
+            if not connect :
+                self.cltSock = ClientSocket()
+                self.cltSock.setCurrentRide(self.rideId)
+                self.connect = True
+            
             return True
         except Exception as e:
+            self.connect = False
             return False
 
 def dmmToDd(dmm) :

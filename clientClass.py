@@ -98,8 +98,6 @@ class ClientSocket :
             if self.protobufProcess.isTaskDone(recv) != True :
                 print("The server socket doesnt return response for the start ride")
                 sys.exit(1)
-            else :
-                self.sock.close()
 
         except Exception as e:
             raise(e)
