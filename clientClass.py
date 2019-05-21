@@ -149,8 +149,8 @@ class ClientSocket :
             data = synchro_pb2.CarToServ()
             data.endConnectionRequest.port = self.PORT
 
-            self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            #self.fSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            #self.fSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             self.fSock.send(data.SerializeToString())
             self.fSock.close()

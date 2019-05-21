@@ -51,8 +51,6 @@ class ProtobufProcessing() :
 				for row in result :
 					self.addElement(getattr(resp.synchronizeResponse.element, table).add(), table, row)
 
-		print("Msg : {}".format(resp))
-
 		curs.close()
 
 		return resp.SerializeToString()
@@ -75,16 +73,12 @@ class ProtobufProcessing() :
 
 			request = request[:-1] + ");"
 
-			print("Req : {}\n".format(request))
-
 			curs.execute(request)
 
 		curs.close()
 
 	def insertData(self, element):
-		print("elem : {}".format(element))
 		table = "data"
-		print("INSERT data !!!!")
 		curs = self.mydb.cursor(dictionary=True)
 
 		curs.execute("SHOW columns FROM {}".format(table))
@@ -104,11 +98,6 @@ class ProtobufProcessing() :
 
 			request = request[:-1] + ");"
 
-			count += 1
-			print("\n{}\n".format(count))
-
-			print("Req : {}\n".format(request))
-
 			curs.execute(request)
 
 		curs.close()
@@ -118,10 +107,7 @@ class ProtobufProcessing() :
 
 		msg = synchro_pb2.ServToCar.FromString(msg);
 
-		print("Msg : {}".format(msg))
-
 		for table in synchro_pb2.table.keys() :
-			print(msg.synchronizeResponse.element)
 			self.insertElement(msg.synchronizeResponse.element, table)
 
 		curs.close()
@@ -144,8 +130,6 @@ class ProtobufProcessing() :
 			row = data[startPos+1:endPos]
 			data = data[endPos+1:]
 			elm = row.split(',')
-			#print("mId : {} / val : {} / date : {}\n".format(*elm)) # Insert request instead !
-			print("INSERT INTO data VALUES(NULL,{},{},{},{})".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(float(elm[2])).strftime('%Y-%m-%d %H:%M:%S.%f')))
 			curs.execute("INSERT INTO data VALUES(NULL,{},{},{},'{}')".format(self.currentRideId, elm[0], elm[1], datetime.fromtimestamp(float(elm[2])).strftime('%Y-%m-%d %H:%M:%S.%f')))
 
 		#self.insertData(msg.endOfRideRequest.element)
@@ -189,8 +173,6 @@ class ProtobufProcessing() :
 		self.resetDbConnection()
 
 		curs = self.mydb.cursor(dictionary=True)
-
-		print("SELECT end_date from ride where id={}".format(self.currentRideId))
 
 		curs.execute("SELECT end_date from ride where id={}".format(self.currentRideId))
 
