@@ -370,8 +370,7 @@ class MainScreen(Screen):
         if self.progress.value == 4 or self.rideId == -1:
             self.progress_clock.cancel()
             self.cltSock.closeSocket()
-            quit()
-            #system("sudo shutdown now")
+            system("sudo shutdown now")
 
     def update_pos(self, dt):
         """ mise a jour des coordonnees gps sur la carte """
