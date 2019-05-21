@@ -25,6 +25,10 @@ print("Close")
 client.close()
 stock.close()"""
 
+socketserver.TCPServer.allow_reuse_address = True
+
+threadedSocket = {}
+
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 
 	def recv_message(self, connection,sz):
@@ -82,9 +86,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
-class MyTCPHandler(socketserver.StreamRequestHandler):
-
-	threadedSocket = {}
+class ConnectionHandler(socketserver.StreamRequestHandler):
 
 	def handle(self):
 
@@ -99,9 +101,9 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 			
 			for port in carPort :
 				try :
-					self.threadedSocket[port] = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
+					threadedSocket[port] = ThreadedTCPServer((HOST, port), ThreadedTCPRequestHandler)
 
-					server_thread = threading.Thread(target=self.threadedSocket[port].serve_forever)
+					server_thread = threading.Thread(target=threadedSocket[port].serve_forever)
 					server_thread.daemon = True
 					server_thread.start()
 
@@ -114,11 +116,22 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 				except Exception as e :
 					print(e)
 
-		elif msg.HasField("endConnectionRequest") :
+
+class DeconnectionHandler(socketserver.StreamRequestHandler):
+
+	def handle(self):
+
+		data = self.request.recv(1024)
+
+		msg = synchro_pb2.CarToServ.FromString(data);
+
+		print("Msg : '{}'".format(data));
+
+		if msg.HasField("endConnectionRequest") :
 			print("\nshutdown socket")
 			port = msg.endConnectionRequest.port
-			self.threadedSocket[port].server_close()
-			self.threadedSocket[port].shutdown()
+			threadedSocket[port].server_close()
+			threadedSocket[port].shutdown()
 
 
 
@@ -126,8 +139,20 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 
 if __name__ == "__main__":
 	
-	HOST, PORT = "172.31.3.59", 8080
+	HOST, PORT_CO, PORT_DECO = "172.31.3.59", 8080, 8081
 	carPort = list(range(8090, 8190))
-	server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
-	server.serve_forever()
+
+	coSock = socketserver.TCPServer((HOST, PORT_CO), ConnectionHandler)
+	decoSock = socketserver.TCPServer((HOST, PORT_DECO), DeconnectionHandler)
 	
+	coThread = threading.Thread(target=coSock.serve_forever)
+	decoThread = threading.Thread(target=decoSock.serve_forever)
+
+	coThread.daemon = True
+	decoThread.daemon = True
+
+	coThread.start()
+	decoThread.start()
+	
+	coThread.join()
+	decoThread.join()
