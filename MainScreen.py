@@ -468,7 +468,7 @@ class MainScreen(Screen):
 
         curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.accelerationVal, now))
 
-        self.voltageVal = round(abs(self.voltageVal),2)
+        self.voltageVal = round(abs(self.voltageVal-0.05),2)
 
         curs.close()
         self.mydb.commit()
@@ -513,10 +513,10 @@ class MainScreen(Screen):
 
                         # conversion de la latitude et longitude en decimal
                         if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
-                            lat = dmsToDd(trame[1])
+                            lat = dmmToDd(trame[1])
                             data["lat"] = lat
                         if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
-                            lon = dmsToDd(trame[2])
+                            lon = dmmToDd(trame[2])
                             data["lon"] = lon
 
                         # vitesse
@@ -551,16 +551,17 @@ class MainScreen(Screen):
         except Exception as e:
             return False
 
-def getDmsElm(dms) :
-    """ recuperation des degres, minutes, secondes des coordonnees gps """
-    return int(dms.split('.')[0][:-2]), int(dms.split('.')[0][-2:]), float(dms[:-1].split('.')[1])/1000, dms[-1]
+def dmmToDd(dmm) :
+    dotPos = dmm.find('.')
 
-def dmsToDd(dms) :
-    """ conversion des coordonnees gps dms en dd """
-    d, m, s, c = getDmsElm(dms)
-    dd = d + float(m)/60 + float(s)/3600
+    d = int(dmm[:dotPos-2])
+    m = float(dmm[dotPos-2:-1])
+    c = dmm[-1]
+
+    dd = d + float(m)/60
     
     if c=="S" or c=="W" : dd = -dd
 
     return dd
+
 
