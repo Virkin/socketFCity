@@ -92,7 +92,7 @@ class GraphScreen(Screen):
             self.graph.y_ticks_major = (self.graph.ymax - self.graph.ymin) / 10
             self.graph.x_ticks_major = (self.graph.xmax - self.graph.xmin) / 10
 
-            self.graph.xlabel = "Secondes écoulées => {}".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
+            self.graph.xlabel = "Temps (s) soit {} au total".format(strftime("%Hh%Mm%Ss", gmtime(self.index)))
             self.index += 1
 
     def number(self):
