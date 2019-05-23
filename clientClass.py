@@ -58,6 +58,7 @@ class ClientSocket :
         # Create a socket (SOCK_STREAM means a TCP socket)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.connect((self.HOST, self.port))
 
         self.progress = 0
 
@@ -70,7 +71,6 @@ class ClientSocket :
             # Connect to server and send data
             data = data.SerializeToString()
 
-            self.sock.connect((self.HOST, self.port))
             s=struct.pack(">L",len(data))+data
             self.sock.send(s)
 
@@ -110,7 +110,6 @@ class ClientSocket :
 
     def endRide(self, endQ):
         try:    
-
             msg = self.protobufProcess.generateDataMsg()
 
             self.progress += 1

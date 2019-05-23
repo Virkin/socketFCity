@@ -60,10 +60,10 @@ class MainScreen(Screen):
         self.toolbareclairement3 = BoxLayout(orientation="horizontal")
         self.maplayout = RelativeLayout()
         # ajout d'une image d'arriere plan sur la partie gauche
-        with self.toolbar.canvas.before:
-            Color(1, 1, 1, .5)
-            self.rect = Rectangle(size=self.toolbar.size, pos=self.toolbar.pos, source="fcity.jpg")
-        self.toolbar.bind(pos=self.update_rect, size=self.update_rect)
+        #with self.toolbar.canvas.before:
+        #    Color(1, 1, 1, .5)
+        #    self.rect = Rectangle(size=self.toolbar.size, pos=self.toolbar.pos, source="fcity.jpg")
+        #self.toolbar.bind(pos=self.update_rect, size=self.update_rect)
 
         # construction de la carte sur la patie droite
         self.map = MapView(zoom=16, lat=48.406970, lon=-4.495254, map_source="osm-fr")
@@ -170,6 +170,7 @@ class MainScreen(Screen):
         self.rideId = 0
         self.voltageVal = 220
         self.t = 0
+        self.connect = False
 
         curs = self.mydb.cursor()
 
@@ -561,7 +562,7 @@ class MainScreen(Screen):
             host = gethostbyname("google.com")
             create_connection((host, 80), 2)
 
-            if not connect :
+            if not self.connect :
                 self.cltSock = ClientSocket()
                 self.cltSock.setCurrentRide(self.rideId)
                 self.connect = True
