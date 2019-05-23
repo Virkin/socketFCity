@@ -122,7 +122,7 @@ class ProtobufProcessing() :
 
 		self.currentRideId = msg.endOfRideRequest.id
 
-		curs.execute("UPDATE ride SET end_date='{}' WHERE id='{}'".format(msg.endOfRideRequest.endDate, msg.endOfRideRequest.id))
+		curs.execute("UPDATE ride SET end_date='{endDate}', end_reservation='{endDate}' WHERE id='{id}'".format(endDate=msg.endOfRideRequest.endDate, id=msg.endOfRideRequest.id))
 
 		while data.find("{") != -1 :
 			startPos = data.find("{")
