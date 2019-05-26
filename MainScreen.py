@@ -168,8 +168,6 @@ class MainScreen(Screen):
         )
 
         self.rideId = 0
-        self.voltageVal = 220
-        self.t = 0
         self.connect = False
 
         curs = self.mydb.cursor()
@@ -391,7 +389,7 @@ class MainScreen(Screen):
 
     def update(self, dt):
         """ mise a jour des informations et des donnees de l'ecran principal """
-        self.maxVoltage = 220
+        self.maxVoltage = 83
 
         self.titre.text = "[b]GPS FCity[/b] {}".format(datetime.now().strftime("%d/%m/%y %H:%M"))
 
@@ -416,38 +414,45 @@ class MainScreen(Screen):
 
                 # recuperation des donnees
                 self.data = self.dataQueue.get()
-                self.insertData()
                 print(self.data)
-                # mise a jour de la position de la carte
-                if "lat" in self.data and "lon" in self.data:
-                    self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
+                try:
+                    self.insertData()
 
-                if "vit" in self.data:
-                    self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
-                self.acceleration.text = " {} g".format(self.accelerationVal)
-                if "pn1" in self.data:
-                    self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
-                if "pn2" in self.data:
-                    self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
-                if "pn3" in self.data:
-                    self.eclairement3.text = " {} lux".format(int(round(float(self.data["pn3"]))))
+                    # mise a jour de la position de la carte
+                    if "lat" in self.data and "lon" in self.data:
+                        self.map.center_on(float(self.data["lat"]), float(self.data["lon"]))
 
-                # mise a jour du niveau de batterie
-                if self.voltageVal < self.maxVoltage/8 :
-                    self.battery.source = "img/battery-empty.png"
-                elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
-                    self.battery.source = "img/battery-quarter.png"
-                elif self.voltageVal >= 3*self.maxVoltage/8 and self.voltageVal < 5*self.maxVoltage/8 :
-                    self.battery.source = "img/battery-half.png"
-                elif self.voltageVal >= 5*self.maxVoltage/8 and self.voltageVal < 7*self.maxVoltage/8 : 
-                    self.battery.source = "img/battery-three-quarters.png"
-                else :
-                    self.battery.source = "img/battery-full.png"
+                    if "vit" in self.data:
+                        self.vitesse.text = " {} km/h".format(int(round(float(self.data["vit"]))))
+                    if "pn1" in self.data:
+                        self.eclairement1.text = " {} lux".format(int(round(float(self.data["pn1"]))))
+                    if "pn2" in self.data:
+                        self.eclairement2.text = " {} lux".format(int(round(float(self.data["pn2"]))))
+                    if "pn3" in self.data:
+                        self.eclairement3.text = " {} lux".format(int(round(float(self.data["pn3"]))))
+                    if "volt" in self.data:
+                        # mise a jour du niveau de batterie
+                        self.voltageVal = float(self.data["volt"])
 
-                # calcul de la puissance
-                self.puiss = self.voltageVal*self.intensityVal
-                self.q.put(self.puiss)
-                self.puissance.text = " {} W".format(int(round(self.puiss)))
+                        if self.voltageVal < self.maxVoltage/8 :
+                            self.battery.source = "img/battery-empty.png"
+                        elif self.voltageVal >= self.maxVoltage/8 and self.voltageVal < 3*self.maxVoltage/8 :
+                            self.battery.source = "img/battery-quarter.png"
+                        elif self.voltageVal >= 3*self.maxVoltage/8 and self.voltageVal < 5*self.maxVoltage/8 :
+                            self.battery.source = "img/battery-half.png"
+                        elif self.voltageVal >= 5*self.maxVoltage/8 and self.voltageVal < 7*self.maxVoltage/8 : 
+                            self.battery.source = "img/battery-three-quarters.png"
+                        else :
+                            self.battery.source = "img/battery-full.png"
+                    if "volt" in self.data and "int" in self.data :
+                        self.puiss = float(self.data["volt"])*float(self.data["int"])
+                        self.puissance.text = " {} W".format(self.puiss)
+                        self.q.put(self.puiss)
+
+                    if "accel" in self.data :
+                        self.acceleration.text = " {} g".format(self.data["accel"])
+                except Exception as e:
+                    print(e)
 
     def insertData(self):
         """ insertion des donnees """
@@ -455,29 +460,32 @@ class MainScreen(Screen):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
         if "vit" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 1, self.data["vit"], now))
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 1, self.data["vit"], now))
 
-        self.t += 1
-
-        self.speedVal = round(uniform(20,30)*(sin(self.t*0.01)+1),2)
-        self.intensityVal = round(self.speedVal/10,2)
-        self.accelerationVal = round(uniform(0, 1), 2)
-
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.voltageVal, now))
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.intensityVal, now))
-
         if "pn1" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 4, self.data["pn1"], now))
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 4, self.data["pn1"], now))
 
         if "pn2" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 5, self.data["pn2"], now))
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 5, self.data["pn2"], now))
 
         if "pn3" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 7, self.data["pn3"], now))
             curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 7, self.data["pn3"], now))
 
-        curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.accelerationVal, now))
+        if "volt" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.data["volt"], now))
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 2, self.data["volt"], now))
 
-        self.voltageVal = round(abs(self.voltageVal-0.05),2)
+        if "int" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.data["int"], now))
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 3, self.data["int"], now))
+
+        if "accel" in self.data:
+            print("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.data["accel"], now))
+            curs.execute("INSERT INTO data VALUES (NULL, {}, {} , {}, '{}')".format(self.rideId, 6, self.data["accel"], now))
 
         curs.close()
         self.mydb.commit()
@@ -522,34 +530,32 @@ class MainScreen(Screen):
 
                         # conversion de la latitude et longitude en decimal
                         if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
-                            lat = dmmToDd(trame[1])
-                            data["lat"] = lat
+                            data["lat"] = dmmToDd(trame[1])
                         if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
-                            lon = dmmToDd(trame[2])
-                            data["lon"] = lon
+                            data["lon"] = dmmToDd(trame[2])
 
                         # vitesse
                         if match("[0-9]+\.[0-9]+", trame[3]):
-                            vitesse = trame[3]
-                            data["vit"] = vitesse
+                            data["vit"] = trame[3]
 
                         # eclairement panneau 1, 2 et 3
                         if match("[0-9]+\.[0-9]+", trame[4]):
-                            eclairement_1 = trame[4]
-                            data["pn1"] = eclairement_1
+                            data["pn1"] = trame[4]
 
                         if match("[0-9]+\.[0-9]+", trame[5]):
-                            eclairement_2 = trame[5]
-                            data["pn2"] = eclairement_2
+                            data["pn2"] = trame[5]
 
                         if match("[0-9]+\.[0-9]+", trame[6]):
-                            eclairement_3 = trame[6]
-                            data["pn3"] = eclairement_3
+                            data["pn3"] = trame[6]
 
-                        # acceleration
-                        #acceleration = trame[7]
+                        if match("[0-9]+\.[0-9]+", trame[7]):
+                            data["int"] = trame[7]
 
-                        #data["acc"] = acceleration
+                        if match("[0-9]+\.[0-9]+", trame[8]):
+                            data["volt"] = trame[8]
+
+                        if match("[0-9]+\.[0-9]+", trame[9]):
+                            data["accel"] = trame[9]
 
                         dataQueue.put(data)
                 except Exception as e:
