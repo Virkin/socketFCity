@@ -3,7 +3,7 @@ import socket
 import socketserver
 import mysql.connector
 
-import testProto
+import protoFunc
 
 import threading
 import struct
@@ -48,7 +48,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
 		
 				bf = self.request.recv(4)
 
-				self.protobufProccess = testProto.ProtobufProcessing("Serv", "localhost", "fcity", "fcity29217!", "fcity2")
+				self.protobufProccess = protoFunc.ProtobufProcessing("Serv", "localhost", "fcity", "fcity29217!", "fcity2")
 				self.protobufProccess.resetDbConnection()
 				
 				if bf != b'' :

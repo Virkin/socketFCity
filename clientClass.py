@@ -3,7 +3,7 @@ import socket
 import mysql.connector
 import sys
 
-import testProto
+import protoFunc
 import time
 import struct
 from sys import stderr
@@ -26,7 +26,7 @@ class ClientSocket :
         self.PORT_CO = 8080
         self.PORT_DECO = 8081
 
-        self.protobufProcess = testProto.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
+        self.protobufProcess = protoFunc.ProtobufProcessing("Car", "localhost", "root", "root", "fcity")
 
         #if not self.protobufProcess.detectPause():
 
