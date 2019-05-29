@@ -517,47 +517,28 @@ class MainScreen(Screen):
             while True:
                 try:
                     if self.serial0.read().decode("utf-8") == "$":
-                        # lecture de la trame envoyee
-                        trame = str(self.serial0.readline().decode("utf-8")).split(",")
+                        
+                        fieldName = ["heu","lat","lon","vit","pn1","pn2","pn3","int","volt","accel"]
 
-                        print(trame)
-
-                        # heure
-                        #if match("[0-9]+\.[0-9]+", trame[0]):
-                        #    heure = trame[0].split(".")[0]
-                        #    heure = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
-                        #    data["heu"] = heure
-
-                        # conversion de la latitude et longitude en decimal
-                        if match("[0-9]+\.[0-9]+(N|S)", trame[1]):
-                            data["lat"] = dmmToDd(trame[1])
-                        if match("[0-9]+\.[0-9]+(W|E)", trame[2]):
-                            data["lon"] = dmmToDd(trame[2])
-
-                        # vitesse
-                        if match("[0-9]+\.[0-9]+", trame[3]):
-                            data["vit"] = trame[3]
-
-                        # eclairement panneau 1, 2 et 3
-                        if match("[0-9]+\.[0-9]+", trame[4]):
-                            data["pn1"] = trame[4]
-
-                        if match("[0-9]+\.[0-9]+", trame[5]):
-                            data["pn2"] = trame[5]
-
-                        if match("[0-9]+\.[0-9]+", trame[6]):
-                            data["pn3"] = trame[6]
-
-                        if match("[0-9]+\.[0-9]+", trame[7]):
-                            data["int"] = trame[7]
-
-                        if match("[0-9]+\.[0-9]+", trame[8]):
-                            data["volt"] = trame[8]
-
-                        if match("[0-9]+\.[0-9]+", trame[9]):
-                            data["accel"] = trame[9]
+                        i=0
 
                         dataQueue.put(data)
+                        for elm in str(self.serial0.readline().decode("utf-8")).split(",") :
+                            try:
+                                
+                                if match("[0-9]+\.[0-9]+(N|S)", elm) or match("[0-9]+\.[0-9]+(W|E)", elm) :
+                                    data[fieldName[i]] = dmmToDd(elm)
+                                elif i==0 and match("[0-9]+\.[0-9]+", elm) :
+                                    heure = trame[0].split(".")[0]
+                                    data[fieldName[i]] = "{}:{}:{}".format(heure[:2], heure[2:4], heure[4:])
+                                elif match("[0-9]+\.[0-9]+", elm) :
+                                    data[fieldName[i]] = elm
+
+                                i += 1
+
+                            except Exception as e :
+                                i += 1
+
                 except Exception as e:
                     print(e)
 

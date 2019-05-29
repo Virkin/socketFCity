@@ -1,0 +1,13 @@
+[Unit]
+Description=FCity Server
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python3 /root/socketFCity/server.py > /root/socketFCity/server.log 2>&1
+WorkingDirectory=/root/socketFCity
+User=root
+RemainAfterExit=no
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
