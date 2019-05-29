@@ -1,6 +1,6 @@
-### Dépot contenant les sources de l'application Kivy du tableau de bord FCity, le serveur FCity et la base de données
+# Dépot contenant les sources de l'application Kivy du tableau de bord FCity, le serveur FCity et la base de données
 
-#### Installation de Kivy sur le Raspberry Pi 3 b+
+## Installation de Kivy sur le Raspberry Pi 3 b+
 https://kivy.org/doc/stable/installation/installation-rpi.html
 
 `sudo apt update`
@@ -29,7 +29,7 @@ https://kivy.org/doc/stable/installation/installation-rpi.html
 
 `sudo pip3 install protobuf`
 
-#### Rotation de l'écran, désactivation splash screen, activation le l'uart en déactivant le bluetooth
+## Rotation de l'écran, désactivation splash screen, activation le l'uart en déactivant le bluetooth
 `vim /boot/config.txt`
 
 lcd_rotate=2
@@ -38,26 +38,26 @@ disable_splash=1
 
 dtoverlay=pi3-disable-bt
 
-#### Suppression logo au démarrage
+## Suppression logo au démarrage
 `vim /boot/cmdline.txt`
 
 logo.nologo
 
-#### Insertion de la base de données
+## Insertion de la base de données
 
 `mysql -u root -p < fcity-dump-timestamp-ms.sql`
 
-#### Démarrage du programme NavigationApp.py au démarrage du Raspberry Pi
+## Démarrage du programme NavigationApp.py au démarrage du Raspberry Pi
 `sudo cp fcity.service /lib/systemd/system/.`
 
 `sudo systemctl enable fcity.service`
 
-#### Démarrage du programme server.py au démarrage du serveur (A exécuter sur le serveur)
+## Démarrage du programme server.py au démarrage du serveur (A exécuter sur le serveur)
 `sudo cp fcity-server.service /lib/systemd/system/.`
 
 `sudo systemctl enable fcity-server.service`
 
-#### Activation de l'écran tactile dans Kivy
+## Activation de l'écran tactile dans Kivy
 `vim ~/.kivy/config.ini`
 
 [input]
@@ -68,10 +68,10 @@ mtdev_%(name)s = probesysfs,provider=mtdev
 
 hid_%(name)s = probesysfs,provider=hidinput
 
-#### Changer le fuseau horaire
-sudo dpkg-reconfigure tzdata
+## Changer le fuseau horaire
+`sudo dpkg-reconfigure tzdata`
 
-#### Configuration Wi-Fi ISEN
+## Configuration Wi-Fi ISEN
 `sudo vim /etc/wpa_supplicant/wpa_supplicant.conf`
 
 country=FR
